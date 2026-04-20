@@ -1,0 +1,29 @@
+  - {person_id: fer, project_code: PT-2026-012, dedication_pct: 50, start: 2026-04-07, end: 2026-04-25, role: lead, 
+      archived: false}
+  - {person_id: fer, project_code: CTI-2026-003, dedication_pct: 30, start: 2026-01-01, end: 2026-12-31, role: executor, 
+      archived: false}
+  - {person_id: santi, project_code: PT-2026-014, dedication_pct: 50, start: 2026-04-14, end: 2026-05-09, role: lead, 
+      archived: false}
+  - {person_id: santi, project_code: RT-2026-003, dedication_pct: 50, start: 2026-03-01, end: 2026-04-30, role: executor,
+    archived: false}
+  - {person_id: tbd_01, project_code: PT-2026-012, dedication_pct: 40, start: 2026-04-07, end: 2026-04-25, role: 
+      executor, archived: false}
+  - {person_id: tbd_01, project_code: PUR-2026-001, dedication_pct: 20, start: 2026-04-01, end: 2026-04-30, role: shadow,
+    archived: false}
+  - {person_id: tbd_02, project_code: RT-2026-003, dedication_pct: 30, start: 2026-03-01, end: 2026-04-30, role: 
+      executor, archived: false}
+  - {person_id: tbd_02, project_code: PUR-2026-001, dedication_pct: 20, start: 2026-04-01, end: 2026-04-30, role: 
+      executor, archived: false}
+  - {person_id: tbd_03, project_code: PT-2026-014, dedication_pct: 40, start: 2026-04-14, end: 2026-05-09, role: 
+      executor, archived: false}
+  - {person_id: tbd_03, project_code: CTI-2026-003, dedication_pct: 30, start: 2026-01-01, end: 2026-12-31, role: 
+      reviewer, archived: false}
+  - {person_id: tbd_04, project_code: PT-2026-012, dedication_pct: 20, start: 2026-04-07, end: 2026-04-25, role: shadow, 
+      archived: false}
+  - person_id: tbd_04
+    project_code: PT-2026-018
+    dedication_pct: 25
+    start: '2026-05-12'
+    end: '2026-05-20'
+    role: shadow
+    archived: false

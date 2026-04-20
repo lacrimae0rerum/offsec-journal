@@ -1,0 +1,112 @@
+  - id: fer
+    full_name: Alex P.
+    office: madrid
+    city: Madrid
+    timezone: CET
+    languages: [es, en]
+    base_role: pentester
+    global_level: senior
+    contractual_fte: 1.0
+    start_date: 2019-03-01
+    archived: false
+    skills:
+      - {skill_id: hacking_web, level: 3, last_used_on_project: PT-2026-012, growth_interest: false}
+      - {skill_id: hacking_active_directory, level: 4, last_used_on_project: PT-2026-012, growth_interest: false}
+      - {skill_id: osint, level: 4, last_used_on_project: CTI-2026-003, growth_interest: false}
+      - {skill_id: escalada_privilegios, level: 2, last_used_on_project: null, growth_interest: false}
+      - {skill_id: reporting, level: 4, last_used_on_project: PT-2026-012, growth_interest: false}
+      - {skill_id: hacking_cloud, level: 2, last_used_on_project: null, growth_interest: true}
+      - {skill_id: automatizacion_tooling, level: 3, last_used_on_project: CTI-2026-003, growth_interest: false}
+
+  - id: santi
+    full_name: Sam R.
+    office: madrid
+    city: Madrid
+    timezone: CET
+    languages: [es, en]
+    base_role: pentester
+    global_level: senior
+    contractual_fte: 1.0
+    start_date: 2020-09-01
+    archived: false
+    skills:
+      - {skill_id: hacking_web, level: 4, last_used_on_project: PT-2026-014, growth_interest: false}
+      - {skill_id: hacking_active_directory, level: 4, last_used_on_project: PT-2026-014, growth_interest: false}
+      - {skill_id: escalada_privilegios, level: 4, last_used_on_project: RT-2026-003, growth_interest: false}
+      - {skill_id: bypass_autenticacion, level: 3, last_used_on_project: PT-2026-014, growth_interest: false}
+      - {skill_id: reporting, level: 3, last_used_on_project: RT-2026-003, growth_interest: false}
+
+  - id: tbd_01
+    full_name: Operador 01
+    office: barcelona
+    city: Barcelona
+    timezone: CET
+    languages: [es]
+    base_role: pentester
+    global_level: intermediate
+    contractual_fte: 1.0
+    start_date: 2024-06-15
+    archived: false
+    skills:
+      - {skill_id: hacking_web, level: 3, last_used_on_project: PT-2026-012, growth_interest: false}
+      - {skill_id: osint, level: 2, last_used_on_project: null, growth_interest: true}
+      - {skill_id: reporting, level: 2, last_used_on_project: PT-2026-012, growth_interest: false}
+
+  - id: tbd_02
+    full_name: Operador 02
+    office: barcelona
+    city: Barcelona
+    timezone: CET
+    languages: [es]
+    base_role: pentester
+    global_level: intermediate
+    contractual_fte: 1.0
+    start_date: 2025-01-10
+    archived: false
+    skills:
+      - {skill_id: hacking_active_directory, level: 3, last_used_on_project: RT-2026-003, growth_interest: false}
+      - {skill_id: pivoting_movimiento_lateral, level: 3, last_used_on_project: RT-2026-003, growth_interest: false}
+
+  - id: tbd_03
+    full_name: Operador 03
+    office: remote
+    city: Remote
+    timezone: CET
+    languages: [es, en]
+    base_role: pentester
+    global_level: senior
+    contractual_fte: 1.0
+    start_date: 2025-10-01
+    archived: false
+    skills:
+      - {skill_id: hacking_web, level: 2, last_used_on_project: PT-2026-014, growth_interest: false}
+      - {skill_id: osint, level: 1, last_used_on_project: null, growth_interest: false}
+      - {skill_id: escalada_privilegios, level: 2, last_used_on_project: null, growth_interest: false}
+      - {skill_id: reporting, level: 2, last_used_on_project: null, growth_interest: false}
+
+  - id: tbd_04
+    full_name: Operador 04
+    office: lisboa
+    city: Lisboa
+    timezone: WET
+    languages: [pt, en]
+    base_role: pentester
+    global_level: junior
+    contractual_fte: 1.0
+    start_date: 2026-03-01
+    archived: false
+    skills:
+      - {skill_id: osint, level: 1, last_used_on_project: null, growth_interest: true}
+      - {skill_id: reporting, level: 1, last_used_on_project: PT-2026-018, growth_interest: false}
+  - id: demo_nolocal
+    full_name: Demo NoLocal
+    office: madrid
+    city: ''
+    timezone: CET
+    languages: []
+    base_role: pentester
+    global_level: junior
+    contractual_fte: 1.0
+    start_date: '2026-05-01'
+    archived: false
+    skills: []

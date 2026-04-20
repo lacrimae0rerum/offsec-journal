@@ -1,0 +1,39 @@
+[project]
+name = "offsec-journal"
+version = "0.1.0"
+description = "MSSP offensive security team management tool — FastAPI + SQLite + Ollama"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.32",
+    "pydantic>=2.9",
+    "pydantic-settings>=2.6",
+    "ruamel.yaml>=0.18",
+    "httpx>=0.27",
+    "loguru>=0.7",
+    "python-ulid>=3.0",
+    "python-multipart>=0.0.12",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.3",
+    "pytest-asyncio>=0.24",
+    "httpx>=0.27",
+]
+
+[project.scripts]
+offsec = "api.cli:main"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["api*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = "test_*.py"
+asyncio_mode = "auto"

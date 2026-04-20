@@ -1,0 +1,12 @@
+"""X-API-Key auth dependency. `make install` writes the key to .env."""
+from fastapi import Header, HTTPException, status
+
+from api.config import settings
+
+
+async def require_api_key(x_api_key: str | None = Header(default=None)) -> None:
+    if not x_api_key or x_api_key != settings.api_key:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="invalid or missing X-API-Key",
+        )

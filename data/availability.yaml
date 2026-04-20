@@ -1,0 +1,2 @@
+- { person_id: fer, kind: pto,      start: 2026-04-21, end: 2026-04-25, pct: 100, reason: Vacaciones,      archived: false }
+- { person_id: fer, kind: training, start: 2026-05-11, end: 2026-05-15, pct: 50,  reason: HTB Cloud course, archived: false }

@@ -1,0 +1,2050 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Offensive Security Journal — Wireframes</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Ubuntu:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  :root {
+    --bg: #1a1a1f;
+    --surface: #22222a;
+    --border: #3a3a44;
+    --text: #c8c8d0;
+    --text2: #7a7a88;
+    --accent: #1e9be0;
+    --warn: #f0b830;
+    --danger: #f06070;
+    --sketch: #c8c8d0;
+    --font-sketch: 'Ubuntu', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-sketch);
+    font-size: 16px;
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+  }
+
+  /* ---- SIDEBAR ---- */
+  .sidebar {
+    width: 220px;
+    min-width: 220px;
+    background: var(--surface);
+    border-right: 2px dashed var(--border);
+    display: flex;
+    flex-direction: column;
+    padding: 16px 0;
+    overflow-y: auto;
+  }
+  .sidebar.mini {
+    width: 56px;
+    min-width: 56px;
+  }
+  .sidebar.mini .nav-label { display: none; }
+  .sidebar.mini .sidebar-title { display: none; }
+  .sidebar.mini .nav-item { justify-content: center; padding: 10px 0; }
+
+  .sidebar-title {
+    font-size: 20px;
+    font-weight: 700;
+    padding: 0 16px 16px;
+    color: var(--accent);
+    border-bottom: 1px dashed var(--border);
+    margin-bottom: 8px;
+    letter-spacing: 1px;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 16px;
+    cursor: pointer;
+    font-size: 17px;
+    color: var(--text2);
+    transition: all .15s;
+    border-left: 3px solid transparent;
+  }
+  .nav-item:hover { color: var(--text); background: rgba(255,255,255,.04); }
+  .nav-item.active {
+    color: var(--accent);
+    border-left-color: var(--accent);
+    background: rgba(30,155,224,.06);
+  }
+  .nav-icon {
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    opacity: .7;
+  }
+
+  /* ---- MAIN ---- */
+  .main {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px 12px;
+    position: relative;
+  }
+
+  .page { display: none; }
+  .page.active { display: block; }
+
+  .page-title {
+    font-size: 32px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .page-sub {
+    font-size: 17px;
+    color: var(--text2);
+    margin-bottom: 28px;
+  }
+
+  /* ---- WIREFRAME PRIMITIVES ---- */
+  .wf-row { display: flex; gap: 16px; margin-bottom: 16px; flex-wrap: wrap; }
+  .wf-col { display: flex; flex-direction: column; gap: 16px; }
+
+  .wf-card {
+    background: var(--surface);
+    border: 1.5px dashed var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    position: relative;
+  }
+  .wf-card-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text2);
+    margin-bottom: 10px;
+    font-family: var(--font-mono);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 11px;
+  }
+
+  .wf-kpi {
+    text-align: center;
+    padding: 18px 24px;
+    flex: 1;
+    min-width: 140px;
+  }
+  .wf-kpi-val {
+    font-size: 40px;
+    font-weight: 700;
+    color: var(--accent);
+    line-height: 1;
+  }
+  .wf-kpi-label {
+    font-size: 15px;
+    color: var(--text2);
+    margin-top: 4px;
+  }
+
+  .wf-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 15px;
+  }
+  .wf-table th {
+    text-align: left;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text2);
+    padding: 8px 10px;
+    border-bottom: 1.5px dashed var(--border);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .wf-table td {
+    padding: 8px 10px;
+    border-bottom: 1px solid rgba(255,255,255,.04);
+  }
+  .wf-table tr:hover { background: rgba(255,255,255,.03); cursor: pointer; }
+
+  .wf-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 13px;
+    font-family: var(--font-mono);
+    font-weight: 500;
+  }
+  .wf-badge.green { background: rgba(30,155,224,.15); color: var(--accent); }
+  .wf-badge.amber { background: rgba(240,192,80,.15); color: var(--warn); }
+  .wf-badge.rose { background: rgba(240,96,112,.15); color: var(--danger); }
+  .wf-badge.gray { background: rgba(200,200,208,.1); color: var(--text2); }
+
+  .wf-placeholder {
+    background: repeating-linear-gradient(
+      -45deg,
+      transparent,
+      transparent 6px,
+      rgba(255,255,255,.03) 6px,
+      rgba(255,255,255,.03) 12px
+    );
+    border: 1.5px dashed var(--border);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text2);
+    font-size: 14px;
+    font-family: var(--font-mono);
+    min-height: 60px;
+    padding: 12px;
+    text-align: center;
+  }
+
+  /* Heatmap cells */
+  .hm-grid {
+    display: grid;
+    gap: 2px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+  }
+  .hm-cell {
+    width: 100%;
+    aspect-ratio: 3.5;
+    border-radius: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform .1s;
+    min-height: 14px;
+  }
+  .hm-cell:hover { transform: scale(1.15); z-index: 2; }
+  .hm-header {
+    font-size: 11px;
+    color: var(--text2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Popover */
+  .wf-popover {
+    position: absolute;
+    background: var(--surface);
+    border: 1px solid var(--accent);
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 14px;
+    z-index: 100;
+    display: none;
+    min-width: 200px;
+    box-shadow: 0 8px 32px rgba(0,0,0,.5);
+  }
+  .wf-popover.visible { display: block; }
+
+  /* Drawer */
+  .drawer-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,.5);
+    z-index: 200;
+    display: none;
+  }
+  .drawer-overlay.open { display: flex; justify-content: flex-end; }
+  .drawer {
+    width: 480px;
+    max-width: 90vw;
+    background: var(--surface);
+    border-left: 2px dashed var(--border);
+    padding: 28px;
+    overflow-y: auto;
+    height: 100vh;
+    animation: slideIn .2s ease;
+  }
+  @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
+  .drawer-close {
+    float: right;
+    cursor: pointer;
+    font-size: 24px;
+    color: var(--text2);
+    background: none;
+    border: none;
+    font-family: var(--font-sketch);
+  }
+
+  /* Chat */
+  .chat-layout { display: flex; gap: 0; height: calc(100vh - 140px); }
+  .chat-main { flex: 1; display: flex; flex-direction: column; border-right: 1.5px dashed var(--border); }
+  .chat-panel { width: 320px; overflow-y: auto; padding: 16px; background: rgba(0,0,0,.15); }
+  .chat-messages { flex: 1; overflow-y: auto; padding: 16px; }
+  .chat-input-bar {
+    border-top: 1.5px dashed var(--border);
+    padding: 12px 16px;
+    display: flex;
+    gap: 8px;
+  }
+  .chat-input {
+    flex: 1;
+    background: var(--bg);
+    border: 1.5px dashed var(--border);
+    border-radius: 6px;
+    padding: 10px 14px;
+    color: var(--text);
+    font-family: var(--font-sketch);
+    font-size: 16px;
+    outline: none;
+  }
+  .chat-send {
+    background: var(--accent);
+    color: var(--bg);
+    border: none;
+    border-radius: 6px;
+    padding: 10px 18px;
+    font-family: var(--font-sketch);
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .chat-msg {
+    margin-bottom: 14px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    max-width: 85%;
+    line-height: 1.5;
+  }
+  .chat-msg.user {
+    background: rgba(30,155,224,.1);
+    border: 1px dashed rgba(30,155,224,.3);
+    margin-left: auto;
+  }
+  .chat-msg.assistant {
+    background: var(--surface);
+    border: 1px dashed var(--border);
+  }
+  .chat-msg .streaming-cursor {
+    display: inline-block;
+    width: 8px;
+    height: 18px;
+    background: var(--accent);
+    animation: blink .6s infinite;
+    vertical-align: text-bottom;
+    margin-left: 2px;
+  }
+  @keyframes blink { 0%,100% { opacity:1; } 50% { opacity:0; } }
+
+  .tool-card {
+    background: var(--bg);
+    border: 1px dashed var(--border);
+    border-radius: 6px;
+    padding: 10px 12px;
+    margin-bottom: 8px;
+    font-size: 13px;
+  }
+  .tool-card-header {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--accent);
+    margin-bottom: 4px;
+  }
+
+  /* Journal */
+  .journal-tabs { display: flex; gap: 0; margin-bottom: 20px; }
+  .journal-tab {
+    padding: 8px 20px;
+    cursor: pointer;
+    font-size: 16px;
+    color: var(--text2);
+    border-bottom: 2px solid transparent;
+    transition: all .15s;
+  }
+  .journal-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+  .journal-entry {
+    border: 1.5px dashed var(--border);
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    background: var(--surface);
+  }
+  .journal-entry .je-body { flex: 1; }
+  .journal-entry .je-actions { display: flex; gap: 6px; flex-shrink: 0; }
+  .je-btn {
+    padding: 5px 12px;
+    border-radius: 5px;
+    border: 1.5px dashed var(--border);
+    font-family: var(--font-sketch);
+    font-size: 14px;
+    cursor: pointer;
+    background: transparent;
+    color: var(--text);
+  }
+  .je-btn.apply { border-color: var(--accent); color: var(--accent); }
+  .je-btn.reject { border-color: var(--danger); color: var(--danger); }
+
+  /* Kanban */
+  .kanban { display: flex; gap: 16px; }
+  .kanban-col { flex: 1; min-width: 0; }
+  .kanban-col-title {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text2);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding-bottom: 10px;
+    border-bottom: 1.5px dashed var(--border);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .kanban-col-count {
+    background: rgba(255,255,255,.08);
+    border-radius: 10px;
+    padding: 1px 8px;
+    font-size: 12px;
+  }
+  .kanban-card {
+    background: var(--surface);
+    border: 1.5px dashed var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: border-color .15s;
+  }
+  .kanban-card:hover { border-color: var(--accent); }
+  .kanban-card-title { font-weight: 600; margin-bottom: 4px; }
+  .kanban-card-meta { font-size: 13px; color: var(--text2); }
+
+  /* Map placeholder */
+  .map-container {
+    height: calc(100vh - 180px);
+    border: 1.5px dashed var(--border);
+    border-radius: 8px;
+    position: relative;
+    overflow: hidden;
+    background:
+      radial-gradient(circle at 30% 40%, rgba(30,155,224,.04) 0%, transparent 50%),
+      radial-gradient(circle at 70% 60%, rgba(30,155,224,.03) 0%, transparent 40%),
+      var(--bg);
+  }
+  .map-marker {
+    position: absolute;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: rgba(30,155,224,.25);
+    border: 2px dashed var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--accent);
+    font-weight: 600;
+    transition: transform .15s;
+  }
+  .map-marker:hover { transform: scale(1.3); }
+
+  /* Search */
+  .search-bar {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 24px;
+  }
+  .search-input {
+    flex: 1;
+    background: var(--surface);
+    border: 1.5px dashed var(--border);
+    border-radius: 8px;
+    padding: 12px 18px;
+    color: var(--text);
+    font-family: var(--font-sketch);
+    font-size: 18px;
+    outline: none;
+  }
+  .search-input:focus { border-color: var(--accent); }
+  .search-group-title {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text2);
+    margin: 20px 0 10px;
+  }
+  .search-result {
+    padding: 10px 14px;
+    border: 1px dashed var(--border);
+    border-radius: 6px;
+    margin-bottom: 6px;
+    cursor: pointer;
+    transition: border-color .15s;
+  }
+  .search-result:hover { border-color: var(--accent); }
+
+  /* Skills matrix */
+  .skills-matrix {
+    overflow-x: auto;
+  }
+  .skills-matrix table {
+    border-collapse: collapse;
+    font-size: 13px;
+    width: 100%;
+  }
+  .skills-matrix th, .skills-matrix td {
+    padding: 6px 8px;
+    text-align: center;
+    border: 1px solid rgba(255,255,255,.06);
+    min-width: 40px;
+  }
+  .skills-matrix th {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text2);
+    position: sticky;
+    top: 0;
+    background: var(--bg);
+  }
+  .skills-matrix th.row-header {
+    text-align: left;
+    min-width: 100px;
+    position: sticky;
+    left: 0;
+    background: var(--bg);
+    z-index: 2;
+  }
+  .skill-cell {
+    border-radius: 3px;
+    font-family: var(--font-mono);
+    font-weight: 500;
+  }
+
+  /* Radar placeholder */
+  .radar-placeholder {
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    border: 1.5px dashed var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text2);
+    position: relative;
+    margin: 0 auto;
+  }
+  .radar-placeholder::before {
+    content: '';
+    position: absolute;
+    width: 130px; height: 130px;
+    border: 1px dashed var(--border);
+    border-radius: 50%;
+  }
+  .radar-placeholder::after {
+    content: '';
+    position: absolute;
+    width: 60px; height: 60px;
+    border: 1px dashed var(--border);
+    border-radius: 50%;
+  }
+
+  /* Annotation callouts */
+  .annotation {
+    position: absolute;
+    background: rgba(30,155,224,.1);
+    border: 1px solid var(--accent);
+    border-radius: 6px;
+    padding: 6px 10px;
+    font-size: 13px;
+    color: var(--accent);
+    font-family: var(--font-sketch);
+    z-index: 10;
+    pointer-events: none;
+  }
+
+  /* Tweaks panel */
+  .tweaks-panel {
+    position: fixed;
+    bottom: 16px;
+    right: 16px;
+    background: var(--surface);
+    border: 1px solid var(--accent);
+    border-radius: 10px;
+    padding: 16px 20px;
+    z-index: 500;
+    display: none;
+    min-width: 240px;
+    box-shadow: 0 8px 32px rgba(0,0,0,.5);
+  }
+  .tweaks-panel.visible { display: block; }
+  .tweaks-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 12px;
+  }
+  .tweak-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    font-size: 14px;
+  }
+  .tweak-row label { color: var(--text2); }
+  .tweak-select {
+    background: var(--bg);
+    color: var(--text);
+    border: 1px dashed var(--border);
+    border-radius: 4px;
+    padding: 3px 8px;
+    font-family: var(--font-sketch);
+    font-size: 13px;
+  }
+
+  /* Scrollbar */
+  .hm-range-btn {
+    background: transparent;
+    border: 1px solid #0d2e47;
+    color: var(--text2);
+    border-radius: 4px;
+    padding: 2px 8px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    cursor: pointer;
+    transition: all .15s;
+  }
+  .hm-range-btn:hover { border-color: #1e9be0; color: #1e9be0; }
+  .hm-range-btn.active { border-color: #1e9be0; color: #1e9be0; background: rgba(30,155,224,.1); }
+
+  .client-list-item {
+    padding: 10px 14px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    margin-bottom: 6px;
+    cursor: pointer;
+    transition: border-color .15s;
+  }
+  .client-list-item:hover { border-color: #1e9be0; }
+  .client-list-item.active { border-color: #1e9be0; background: rgba(30,155,224,.07); }
+
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  .flex-1 { flex: 1; }
+  .gap-sm { gap: 8px; }
+  .mt-sm { margin-top: 8px; }
+  .mt-md { margin-top: 16px; }
+  .mb-sm { margin-bottom: 8px; }
+  .text-accent { color: var(--accent); }
+  .text-warn { color: var(--warn); }
+  .text-danger { color: var(--danger); }
+  .text-muted { color: var(--text2); }
+  .mono { font-family: var(--font-mono); font-size: 13px; }
+  .small { font-size: 13px; }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<nav class="sidebar" id="sidebar" style="width: 320px; background-color: rgb(15, 15, 15);">
+  <div style="padding: 16px 16px 12px; border-bottom: 1px solid #0d2e47; margin-bottom: 8px; display:flex; align-items:center; min-height:56px;">
+    <div style="width:140px;height:36px;border:1.5px dashed #0d2e47;border-radius:4px;display:flex;align-items:center;justify-content:center;">
+      <span style="font-size:11px;font-family:var(--font-mono);color:#5a829e;">LOGO</span>
+    </div>
+  </div>
+  <div class="sidebar-title" style="color: rgb(41, 161, 255);">Offensive Security Journal</div>
+  <div class="nav-item active" data-page="overview">
+    <span class="nav-icon">◈</span>
+    <span class="nav-label">Overview</span>
+  </div>
+  <div class="nav-item" data-page="people">
+    <span class="nav-icon">⊕</span>
+    <span class="nav-label">People</span>
+  </div>
+  <div class="nav-item" data-page="projects">
+    <span class="nav-icon">▣</span>
+    <span class="nav-label">Projects</span>
+  </div>
+  <div class="nav-item" data-page="clients">
+    <span class="nav-icon">◎</span>
+    <span class="nav-label">Clients</span>
+  </div>
+  <div class="nav-item" data-page="schedule">
+    <span class="nav-icon">▦</span>
+    <span class="nav-label">Schedule</span>
+  </div>
+  <div class="nav-item" data-page="skills">
+    <span class="nav-icon">◇</span>
+    <span class="nav-label">Skills</span>
+  </div>
+  <div class="nav-item" data-page="map">
+    <span class="nav-icon">⊙</span>
+    <span class="nav-label">Map</span>
+  </div>
+  <div class="nav-item" data-page="journal">
+    <span class="nav-icon">≡</span>
+    <span class="nav-label">Journal</span>
+  </div>
+  <div class="nav-item" data-page="chat">
+    <span class="nav-icon">▷</span>
+    <span class="nav-label">Chat</span>
+  </div>
+  <div class="nav-item" data-page="search">
+    <span class="nav-icon">⊕</span>
+    <span class="nav-label">Search</span>
+  </div>
+    <span class="nav-icon">⌕</span>
+    <span class="nav-label">Search</span>
+  </div>
+</nav>
+
+<div class="main" id="main">
+
+<!-- ========== OVERVIEW ========== -->
+<div class="page active" id="page-overview">
+  <div class="page-title">Overview</div>
+  <div class="page-sub">Estado del equipo esta semana</div>
+
+  <div class="wf-row">
+    <div class="wf-card wf-kpi"><div class="wf-kpi-val">6</div><div class="wf-kpi-label">Personas</div></div>
+    <div class="wf-card wf-kpi"><div class="wf-kpi-val">5</div><div class="wf-kpi-label">Proyectos activos</div></div>
+    <div class="wf-card wf-kpi"><div class="wf-kpi-val">3</div><div class="wf-kpi-label">Pipeline</div></div>
+    <div class="wf-card wf-kpi"><div class="wf-kpi-val text-warn">2</div><div class="wf-kpi-label">Coherence warnings</div></div>
+    <div class="wf-card wf-kpi"><div class="wf-kpi-val">78%</div><div class="wf-kpi-label">Carga media</div></div>
+  </div>
+
+  <div class="wf-row">
+    <div class="wf-card" style="flex:2">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+        <div class="wf-card-title" style="margin:0;">Heatmap</div>
+        <div style="display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end;">
+          <button class="hm-range-btn active" onclick="setOverviewRange(1,this)">1S</button>
+          <button class="hm-range-btn" onclick="setOverviewRange(2,this)">2S</button>
+          <button class="hm-range-btn" onclick="setOverviewRange(3,this)">3S</button>
+          <button class="hm-range-btn" onclick="setOverviewRange(4,this)">1M</button>
+          <button class="hm-range-btn" onclick="setOverviewRange(8,this)">2M</button>
+          <button class="hm-range-btn" onclick="setOverviewRange(12,this)">3M</button>
+          <button class="hm-range-btn" onclick="setOverviewRange(17,this)">4M</button>
+          <button class="hm-range-btn" onclick="setOverviewRange(21,this)">5M</button>
+          <button class="hm-range-btn" onclick="setOverviewRange(26,this)">6M</button>
+        </div>
+      </div>
+      <div id="overview-heatmap"></div>
+    </div>
+    <div class="wf-card" style="flex:1">
+      <div class="wf-card-title">Top 3 skill gaps (pipeline)</div>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-top:4px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <span>hacking_cloud</span>
+          <span class="wf-badge rose">déficit 2</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <span>escalada_privilegios</span>
+          <span class="wf-badge rose">déficit 1</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <span>evasion_defensas</span>
+          <span class="wf-badge amber">sin cobertura</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="wf-card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+      <div class="wf-card-title" style="margin:0;">Coherence warnings <span style="color:var(--warn);">(2)</span></div>
+      <span class="text-muted small">global_level ↔ skills</span>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <div style="display:flex;gap:12px;align-items:flex-start;padding:10px 12px;border:1.5px dashed var(--warn);border-radius:6px;background:rgba(240,192,80,.05);">
+        <span class="wf-badge amber" style="flex-shrink:0;">warning</span>
+        <div style="flex:1;">
+          <div style="font-weight:600;margin-bottom:2px;"><a href="#" onclick="goToPage('person-detail');return false;" style="color:var(--accent);text-decoration:none;" class="mono">tbd_03</a> — insufficient_skill_coverage</div>
+          <div class="small text-muted">Marcado <b>senior</b> pero sólo 4 PersonSkill con level≥1 (regla pide ≥5). Revisar global_level o completar skills.</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:12px;align-items:flex-start;padding:10px 12px;border:1.5px dashed var(--warn);border-radius:6px;background:rgba(240,192,80,.05);">
+        <span class="wf-badge amber" style="flex-shrink:0;">warning</span>
+        <div style="flex:1;">
+          <div style="font-weight:600;margin-bottom:2px;"><span class="mono">tbd_04</span> — junior_with_high_skills</div>
+          <div class="small text-muted">Marcado <b>junior</b> pero tiene 0 skills con L≥4 (sin warning; regla no dispara). Revisar si hay que subir a intermediate en 3 meses.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="wf-card">
+    <div class="wf-card-title">Últimas entradas del journal</div>
+    <div style="display:flex;flex-direction:column;gap:6px;margin-top:4px;">
+      <div style="display:flex;gap:12px;align-items:center;font-size:14px;">
+        <span class="wf-badge green">applied</span>
+        <span class="mono" style="font-size:11px;color:var(--text2)">assign</span>
+        <span>santi → PT-2026-014, 50%, lead</span>
+        <span class="mono" style="font-size:11px;color:var(--text2);margin-left:auto">hace 2h</span>
+      </div>
+      <div style="display:flex;gap:12px;align-items:center;font-size:14px;">
+        <span class="wf-badge amber">pending</span>
+        <span class="mono" style="font-size:11px;color:var(--text2)">skill_update</span>
+        <span>tbd_01: hacking_web L3 → L4</span>
+        <span class="mono" style="font-size:11px;color:var(--text2);margin-left:auto">hace 5h</span>
+      </div>
+      <div style="display:flex;gap:12px;align-items:center;font-size:14px;">
+        <span class="wf-badge green">applied</span>
+        <span class="mono" style="font-size:11px;color:var(--text2)">availability</span>
+        <span>fer: PTO 21–25 abr</span>
+        <span class="mono" style="font-size:11px;color:var(--text2);margin-left:auto">hace 1d</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== PEOPLE ========== -->
+<div class="page" id="page-people">
+  <div class="page-title">People</div>
+  <div class="page-sub">Equipo ofensivo — click en fila para detalle</div>
+
+  <div class="wf-row" style="margin-bottom:16px;">
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <select class="tweak-select"><option>Todas las oficinas</option><option>Madrid</option><option>Barcelona</option><option>Lisboa</option><option>Remote</option></select>
+      <select class="tweak-select"><option>Todos los niveles</option><option>junior</option><option>intermediate</option><option>senior</option><option>master</option></select>
+      <select class="tweak-select"><option>Cualquier skill</option><option>hacking_web ≥3</option><option>hacking_ad ≥3</option><option>osint ≥2</option></select>
+    </div>
+  </div>
+
+  <div class="wf-card" style="padding:0;overflow:hidden;">
+    <table class="wf-table">
+      <thead>
+        <tr>
+          <th>ID</th><th>Nombre</th><th>Oficina</th><th>Nivel</th><th>Carga sem.</th><th>⚠</th>
+        </tr>
+      </thead>
+      <tbody id="people-table">
+        <tr onclick="openDrawer('fer')"><td class="mono">fer</td><td>Fernando R.</td><td>Madrid</td><td><span class="wf-badge green">senior</span></td><td>80%</td><td></td></tr>
+        <tr onclick="openDrawer('santi')"><td class="mono">santi</td><td>Santiago M.</td><td>Madrid</td><td><span class="wf-badge green">senior</span></td><td>100%</td><td></td></tr>
+        <tr><td class="mono">tbd_01</td><td>Operador 01</td><td>Barcelona</td><td><span class="wf-badge gray">intermediate</span></td><td>60%</td><td></td></tr>
+        <tr><td class="mono">tbd_02</td><td>Operador 02</td><td>Barcelona</td><td><span class="wf-badge gray">intermediate</span></td><td>50%</td><td></td></tr>
+        <tr><td class="mono">tbd_03</td><td>Operador 03</td><td>Remote</td><td><span class="wf-badge amber">senior ⚠</span></td><td>70%</td><td><span class="text-warn" title="insufficient_skill_coverage">⚠</span></td></tr>
+        <tr><td class="mono">tbd_04</td><td>Operador 04</td><td>Lisboa</td><td><span class="wf-badge gray">junior</span></td><td>30%</td><td></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- DRAWER -->
+<div class="drawer-overlay" id="drawer-overlay" onclick="closeDrawer()">
+  <div class="drawer" onclick="event.stopPropagation()">
+    <button class="drawer-close" onclick="closeDrawer()">×</button>
+    <div class="page-title" style="font-size:24px;" id="drawer-name">Fernando R.</div>
+    <div class="mono mb-sm" id="drawer-id">fer</div>
+    <div class="small text-muted mb-sm">Madrid · senior · FTE 1.0 · desde 2019-03-01</div>
+    <div style="margin-top:8px;"><a href="#" onclick="closeDrawer();goToPage('person-detail');return false;" style="color:var(--accent);font-size:14px;">→ Ver página completa</a></div>
+
+    <div class="wf-card mt-md">
+      <div class="wf-card-title">Skills</div>
+      <svg viewBox="0 0 200 200" width="200" height="200" style="display:block;margin:0 auto;">
+        <!-- concentric grid -->
+        <g fill="none" stroke="#3a3a44" stroke-dasharray="3 3" stroke-width="1">
+          <polygon points="100,84 113.86,92 113.86,108 100,116 86.14,108 86.14,92"/>
+          <polygon points="100,68 127.71,84 127.71,116 100,132 72.29,116 72.29,84"/>
+          <polygon points="100,52 141.57,76 141.57,124 100,148 58.43,124 58.43,76"/>
+          <polygon points="100,36 155.42,68 155.42,132 100,164 44.58,132 44.58,68"/>
+          <polygon points="100,20 169.28,60 169.28,140 100,180 30.72,140 30.72,60"/>
+        </g>
+        <!-- axes -->
+        <g stroke="#3a3a44" stroke-width="1" stroke-dasharray="2 3">
+          <line x1="100" y1="100" x2="100" y2="20"/>
+          <line x1="100" y1="100" x2="169.28" y2="60"/>
+          <line x1="100" y1="100" x2="169.28" y2="140"/>
+          <line x1="100" y1="100" x2="100" y2="180"/>
+          <line x1="100" y1="100" x2="30.72" y2="140"/>
+          <line x1="100" y1="100" x2="30.72" y2="60"/>
+        </g>
+        <!-- data polygon: web=3, ad=4, osint=4, priv=2, report=4, cloud=2 -->
+        <polygon points="100,52 155.42,68 155.42,132 100,132 44.58,132 72.29,84"
+          fill="rgba(30,155,224,.25)" stroke="#1e9be0" stroke-width="1.5"/>
+        <!-- data points -->
+        <g fill="#1e9be0">
+          <circle cx="100" cy="52" r="3"/>
+          <circle cx="155.42" cy="68" r="3"/>
+          <circle cx="155.42" cy="132" r="3"/>
+          <circle cx="100" cy="132" r="3"/>
+          <circle cx="44.58" cy="132" r="3"/>
+          <circle cx="72.29" cy="84" r="3"/>
+        </g>
+        <!-- labels -->
+        <g fill="#7a7a88" font-family="JetBrains Mono, monospace" font-size="9" text-anchor="middle">
+          <text x="100" y="14">web</text>
+          <text x="179" y="58">ad</text>
+          <text x="179" y="148">osint</text>
+          <text x="100" y="194">priv</text>
+          <text x="21" y="148">report</text>
+          <text x="21" y="58">cloud</text>
+        </g>
+      </svg>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:12px;">
+        <span class="wf-badge green">osint L4</span>
+        <span class="wf-badge green">hacking_web L3</span>
+        <span class="wf-badge green">hacking_ad L4</span>
+        <span class="wf-badge green">reporting L4</span>
+        <span class="wf-badge green">automatizacion L3</span>
+      </div>
+    </div>
+
+    <div class="wf-card mt-md">
+      <div class="wf-card-title">Assignments activos</div>
+      <div style="font-size:14px;">
+        <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+          <span class="mono">PT-2026-012</span>
+          <span>50% · lead</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;">
+          <span class="mono">CTI-2026-003</span>
+          <span>30% · executor</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="wf-card mt-md">
+      <div class="wf-card-title">Notas recientes</div>
+      <div style="font-size:13px;color:var(--text2);line-height:1.6;border-left:2px dashed var(--border);padding-left:10px;">
+        2026-04-15 — Mentoring tbd_04 en OSINT básico. Buena evolución primera semana.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== PERSON DETAIL ========== -->
+<div class="page" id="page-person-detail">
+  <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;">
+    <a href="#" onclick="goToPage('people');return false;" style="color:var(--text2);font-size:14px;">← People</a>
+    <span class="mono" style="font-size:13px;color:var(--text2);">/people/fer</span>
+  </div>
+  <div class="page-title">Fernando R.</div>
+  <div class="page-sub">
+    <span class="mono" style="color:var(--accent);">fer</span> · Madrid · CET ·
+    <span class="wf-badge green">senior</span>
+    FTE 1.0 · desde 2019-03-01 · idiomas: es, en
+  </div>
+
+  <div class="wf-row">
+    <div class="wf-card" style="flex:1;min-width:280px;">
+      <div class="wf-card-title">Skills (radar)</div>
+      <svg viewBox="0 0 200 200" width="240" height="240" style="display:block;margin:0 auto;">
+        <g fill="none" stroke="#3a3a44" stroke-dasharray="3 3" stroke-width="1">
+          <polygon points="100,84 113.86,92 113.86,108 100,116 86.14,108 86.14,92"/>
+          <polygon points="100,68 127.71,84 127.71,116 100,132 72.29,116 72.29,84"/>
+          <polygon points="100,52 141.57,76 141.57,124 100,148 58.43,124 58.43,76"/>
+          <polygon points="100,36 155.42,68 155.42,132 100,164 44.58,132 44.58,68"/>
+          <polygon points="100,20 169.28,60 169.28,140 100,180 30.72,140 30.72,60"/>
+        </g>
+        <g stroke="#3a3a44" stroke-width="1" stroke-dasharray="2 3">
+          <line x1="100" y1="100" x2="100" y2="20"/>
+          <line x1="100" y1="100" x2="169.28" y2="60"/>
+          <line x1="100" y1="100" x2="169.28" y2="140"/>
+          <line x1="100" y1="100" x2="100" y2="180"/>
+          <line x1="100" y1="100" x2="30.72" y2="140"/>
+          <line x1="100" y1="100" x2="30.72" y2="60"/>
+        </g>
+        <polygon points="100,52 155.42,68 155.42,132 100,132 44.58,132 72.29,84"
+          fill="rgba(30,155,224,.25)" stroke="#1e9be0" stroke-width="1.5"/>
+        <g fill="#1e9be0">
+          <circle cx="100" cy="52" r="3"/>
+          <circle cx="155.42" cy="68" r="3"/>
+          <circle cx="155.42" cy="132" r="3"/>
+          <circle cx="100" cy="132" r="3"/>
+          <circle cx="44.58" cy="132" r="3"/>
+          <circle cx="72.29" cy="84" r="3"/>
+        </g>
+        <g fill="#7a7a88" font-family="JetBrains Mono, monospace" font-size="9" text-anchor="middle">
+          <text x="100" y="14">web</text>
+          <text x="179" y="58">ad</text>
+          <text x="179" y="148">osint</text>
+          <text x="100" y="194">priv</text>
+          <text x="21" y="148">report</text>
+          <text x="21" y="58">cloud</text>
+        </g>
+      </svg>
+      <div class="text-muted small" style="text-align:center;margin-top:6px;font-family:var(--font-mono);font-size:10px;">escala 0 → L5</div>
+    </div>
+    <div class="wf-card" style="flex:2;min-width:360px;">
+      <div class="wf-card-title">Skills detalle</div>
+      <table class="wf-table">
+        <thead><tr><th>Skill</th><th>Nivel</th><th>Last used</th><th>Growth</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">osint</td><td><span class="wf-badge green">L4</span></td><td class="mono" style="font-size:12px;">CTI-2026-003</td><td class="text-muted">—</td></tr>
+          <tr><td class="mono">hacking_web</td><td><span class="wf-badge green">L3</span></td><td class="mono" style="font-size:12px;">PT-2026-012</td><td class="text-muted">—</td></tr>
+          <tr><td class="mono">hacking_ad</td><td><span class="wf-badge green">L4</span></td><td class="mono" style="font-size:12px;">PT-2026-012</td><td class="text-muted">—</td></tr>
+          <tr><td class="mono">reporting</td><td><span class="wf-badge green">L4</span></td><td class="mono" style="font-size:12px;">PT-2026-012</td><td class="text-muted">—</td></tr>
+          <tr><td class="mono">automatizacion_tooling</td><td><span class="wf-badge green">L3</span></td><td class="mono" style="font-size:12px;">CTI-2026-003</td><td class="text-muted">—</td></tr>
+          <tr><td class="mono">hacking_cloud</td><td><span class="wf-badge gray">L2</span></td><td class="text-muted">—</td><td class="text-accent">★ interesado</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="wf-row">
+    <div class="wf-card" style="flex:1;">
+      <div class="wf-card-title">Assignments activos</div>
+      <table class="wf-table">
+        <thead><tr><th>Proyecto</th><th>Rol</th><th>%</th><th>Ventana</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">PT-2026-012</td><td>lead</td><td>50%</td><td>Abr 7 → Abr 25</td></tr>
+          <tr><td class="mono">CTI-2026-003</td><td>executor</td><td>30%</td><td>Ene → Dic</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="wf-card" style="flex:1;">
+      <div class="wf-card-title">Coherence</div>
+      <div style="font-size:14px;color:var(--accent);">✓ senior coherente — 2 skills L4, top-5 avg 3.6</div>
+      <div style="margin-top:10px;padding:10px 12px;border:1.5px dashed var(--warn);border-radius:6px;background:rgba(240,192,80,.05);opacity:.6;">
+        <div class="small text-muted" style="font-style:italic;">Ejemplo si hubiera warning:</div>
+        <div class="mono" style="font-size:11px;color:var(--warn);margin-top:4px;">insufficient_skill_coverage</div>
+        <div class="small" style="margin-top:2px;">Regla senior pide ≥5 PersonSkill level≥1; actuales: 4.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="wf-row">
+    <div class="wf-card" style="flex:1;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+        <div class="wf-card-title" style="margin:0;">Disponibilidad (4 próximas semanas)</div>
+        <button class="je-btn" style="padding:4px 12px;font-size:13px;" onclick="document.getElementById('new-avail-modal').style.display='flex'">+ PTO / training</button>
+      </div>
+      <table class="wf-table">
+        <thead><tr><th>Tipo</th><th>Ventana</th><th>%</th><th>Motivo</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td><span class="wf-badge amber">pto</span></td><td class="mono" style="font-size:12px;">2026-04-21 → 2026-04-25</td><td>100%</td><td>Vacaciones</td><td><span class="wf-badge green">applied</span></td></tr>
+          <tr><td><span class="wf-badge">training</span></td><td class="mono" style="font-size:12px;">2026-05-11 → 2026-05-15</td><td>50%</td><td>HTB Cloud course</td><td><span class="wf-badge green">applied</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="wf-card">
+      <div style="display:flex;gap:8px;font-size:13px;">
+        <span class="text-muted">pág 1/3</span>
+        <a href="#" style="color:var(--accent);">←</a>
+        <a href="#" style="color:var(--accent);">→</a>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div style="border-left:2px dashed var(--border);padding-left:12px;">
+        <div class="mono" style="font-size:11px;color:var(--text2);margin-bottom:4px;">2026-04-15 | fer | tags: mentoring, osint</div>
+        <div style="font-size:14px;">Mentoring tbd_04 en OSINT básico. Buena evolución primera semana. Sugerir pareja con santi para AD en mayo.</div>
+      </div>
+      <div style="border-left:2px dashed var(--border);padding-left:12px;">
+        <div class="mono" style="font-size:11px;color:var(--text2);margin-bottom:4px;">2026-04-02 | fer | tags: cti, client-delta</div>
+        <div style="font-size:14px;">Retainer Cliente Delta renovado Q2. Aumentar dedicación si entra phishing campaign nueva.</div>
+      </div>
+      <div style="border-left:2px dashed var(--border);padding-left:12px;">
+        <div class="mono" style="font-size:11px;color:var(--text2);margin-bottom:4px;">2026-03-20 | santi | tags: pto</div>
+        <div style="font-size:14px;">Fer avisa PTO 21-25 abr. Confirmado via journal.</div>
+      </div>
+    </div>
+    <div style="margin-top:16px;border-top:1px dashed var(--border);padding-top:12px;">
+      <textarea placeholder="Añadir nota... (tags: mentoring, cti, etc.)" style="width:100%;background:var(--bg);border:1.5px dashed var(--border);border-radius:6px;padding:8px 12px;color:var(--text);font-family:var(--font-sketch);font-size:14px;resize:vertical;min-height:60px;outline:none;"></textarea>
+      <button class="chat-send" style="margin-top:8px;font-size:14px;padding:6px 14px;">Añadir nota</button>
+    </div>
+  </div>
+
+<!-- ========== PROJECTS ========== -->
+<div class="page" id="page-projects">
+  <div class="page-title">Projects</div>
+  <div class="page-sub">Pipeline → Activos → Cerrados</div>
+
+  <div class="journal-tabs" style="margin-bottom:16px;display:flex;align-items:center;">
+    <div class="journal-tab active" onclick="toggleProjectView('kanban',this)">Kanban</div>
+    <div class="journal-tab" onclick="toggleProjectView('table',this)">Tabla</div>
+    <button class="je-btn primary" style="margin-left:auto;padding:6px 14px;" onclick="document.getElementById('new-project-modal').style.display='flex'">+ Nuevo proyecto</button>
+  </div>
+
+  <div id="projects-table-view" class="wf-card" style="display:none;padding:0;overflow:hidden;">
+    <table class="wf-table">
+      <thead><tr><th>Código</th><th>Tipo</th><th>Cliente</th><th>Ventana</th><th>Status</th><th>Cobertura</th><th>Asignados</th></tr></thead>
+      <tbody>
+        <tr onclick="goToPage('project-detail')" style="cursor:pointer;"><td class="mono">PT-2026-018</td><td>pentest_web</td><td>Cliente Alfa</td><td>May 12 → Jun 6</td><td><span class="wf-badge amber">pipeline</span></td><td><span class="wf-badge rose">40%</span></td><td>0/2</td></tr>
+        <tr><td class="mono">RT-2026-005</td><td>red_team</td><td>Cliente Beta</td><td>Jun 1 → Jul 15</td><td><span class="wf-badge amber">pipeline</span></td><td><span class="wf-badge amber">60%</span></td><td>1/3</td></tr>
+        <tr><td class="mono">RES-2026-001</td><td>research</td><td>Interno</td><td>Jun → ongoing</td><td><span class="wf-badge amber">pipeline</span></td><td><span class="wf-badge gray">—</span></td><td>0/1</td></tr>
+        <tr><td class="mono">PT-2026-012</td><td>pentest_web</td><td>Cliente Gamma</td><td>Abr 7 → Abr 25</td><td><span class="wf-badge green">active</span></td><td><span class="wf-badge green">100%</span></td><td>3/3</td></tr>
+        <tr><td class="mono">PT-2026-014</td><td>pentest_web</td><td>Cliente Delta</td><td>Abr 14 → May 9</td><td><span class="wf-badge green">active</span></td><td><span class="wf-badge green">85%</span></td><td>2/3</td></tr>
+        <tr><td class="mono">RT-2026-003</td><td>red_team</td><td>Cliente Epsilon</td><td>Mar 1 → Abr 30</td><td><span class="wf-badge green">active</span></td><td><span class="wf-badge green">90%</span></td><td>3/3</td></tr>
+        <tr><td class="mono">CTI-2026-003</td><td>cti_retainer</td><td>Cliente Zeta</td><td>Ene → Dic</td><td><span class="wf-badge green">active</span></td><td><span class="wf-badge green">100%</span></td><td>2/2</td></tr>
+        <tr><td class="mono">PUR-2026-001</td><td>purple</td><td>Cliente Eta</td><td>Abr 1 → Abr 30</td><td><span class="wf-badge green">active</span></td><td><span class="wf-badge amber">70%</span></td><td>2/3</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div id="projects-kanban-view" class="kanban">
+    <div class="kanban-col">
+      <div class="kanban-col-title"><span class="wf-badge amber">pipeline</span> <span class="kanban-col-count">3</span></div>
+      <div class="kanban-card" onclick="goToPage('project-detail')">
+        <div class="kanban-card-title mono">PT-2026-018</div>
+        <div class="kanban-card-meta">pentest_web · Cliente Alfa</div>
+        <div class="kanban-card-meta">May 12 → Jun 6</div>
+        <div class="mt-sm"><span class="wf-badge rose">cobertura 40%</span></div>
+      </div>
+      <div class="kanban-card">
+        <div class="kanban-card-title mono">RT-2026-005</div>
+        <div class="kanban-card-meta">red_team · Cliente Beta</div>
+        <div class="kanban-card-meta">Jun 1 → Jul 15</div>
+        <div class="mt-sm"><span class="wf-badge amber">cobertura 60%</span></div>
+      </div>
+      <div class="kanban-card">
+        <div class="kanban-card-title mono">RES-2026-001</div>
+        <div class="kanban-card-meta">research · Interno</div>
+        <div class="kanban-card-meta">Jun → ongoing</div>
+        <div class="mt-sm"><span class="wf-badge gray">cobertura —</span></div>
+      </div>
+    </div>
+    <div class="kanban-col">
+      <div class="kanban-col-title"><span class="wf-badge green">active</span> <span class="kanban-col-count">5</span></div>
+      <div class="kanban-card">
+        <div class="kanban-card-title mono">PT-2026-012</div>
+        <div class="kanban-card-meta">pentest_web · Cliente Gamma</div>
+        <div class="kanban-card-meta">Abr 7 → Abr 25</div>
+        <div class="mt-sm"><span class="wf-badge green">cobertura 100%</span></div>
+      </div>
+      <div class="kanban-card">
+        <div class="kanban-card-title mono">PT-2026-014</div>
+        <div class="kanban-card-meta">pentest_web · Cliente Delta</div>
+        <div class="kanban-card-meta">Abr 14 → May 9</div>
+        <div class="mt-sm"><span class="wf-badge green">cobertura 85%</span></div>
+      </div>
+      <div class="kanban-card">
+        <div class="kanban-card-title mono">RT-2026-003</div>
+        <div class="kanban-card-meta">red_team · Cliente Epsilon</div>
+        <div class="kanban-card-meta">Mar 1 → Abr 30</div>
+        <div class="mt-sm"><span class="wf-badge green">cobertura 90%</span></div>
+      </div>
+      <div class="kanban-card">
+        <div class="kanban-card-title mono">CTI-2026-003</div>
+        <div class="kanban-card-meta">cti_retainer · Cliente Zeta</div>
+        <div class="kanban-card-meta">Ene → Dic</div>
+        <div class="mt-sm"><span class="wf-badge green">cobertura 100%</span></div>
+      </div>
+      <div class="kanban-card">
+        <div class="kanban-card-title mono">PUR-2026-001</div>
+        <div class="kanban-card-meta">purple · Cliente Eta</div>
+        <div class="kanban-card-meta">Abr 1 → Abr 30</div>
+        <div class="mt-sm"><span class="wf-badge amber">cobertura 70%</span></div>
+      </div>
+    </div>
+    <div class="kanban-col">
+      <div class="kanban-col-title"><span class="wf-badge gray">closed</span> <span class="kanban-col-count">0</span></div>
+      <div class="wf-placeholder" style="min-height:100px;">Sin proyectos cerrados este filtro</div>
+    </div>
+  </div><!-- /kanban-view -->
+</div>
+
+<!-- ========== PROJECT DETAIL ========== -->
+<div class="page" id="page-project-detail">
+  <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;">
+    <a href="#" onclick="goToPage('projects');return false;" style="color:var(--text2);font-size:14px;">← Projects</a>
+    <span class="mono" style="font-size:13px;color:var(--text2);">/projects/PT-2026-018</span>
+  </div>
+  <div class="page-title"><span class="mono">PT-2026-018</span> · Cliente Alfa</div>
+  <div class="page-sub">
+    pentest_web · <span class="wf-badge amber">pipeline</span> · May 12 → Jun 6 · estimated 240h
+  </div>
+
+  <div class="wf-row">
+    <div class="wf-card" style="flex:2;min-width:400px;">
+      <div class="wf-card-title">Required skills vs equipo</div>
+      <table class="wf-table">
+        <thead><tr><th>Skill</th><th>Weight</th><th>Min level</th><th>Mejor match</th><th>Gap</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">hacking_web</td><td>3</td><td>L3</td><td>fer L3, santi L4, tbd_01 L3</td><td><span class="wf-badge green">✓</span></td></tr>
+          <tr><td class="mono">bypass_autenticacion</td><td>2</td><td>L3</td><td>santi L3</td><td><span class="wf-badge green">✓</span></td></tr>
+          <tr><td class="mono">hacking_cloud</td><td>3</td><td>L3</td><td>fer L2 (best)</td><td><span class="wf-badge rose">-1 nivel</span></td></tr>
+          <tr><td class="mono">explotacion_logica_negocio</td><td>2</td><td>L2</td><td>fer L2, santi L2</td><td><span class="wf-badge green">✓</span></td></tr>
+          <tr><td class="mono">reporting</td><td>2</td><td>L3</td><td>fer L4, santi L3</td><td><span class="wf-badge green">✓</span></td></tr>
+        </tbody>
+      </table>
+      <div style="margin-top:10px;display:flex;align-items:center;gap:10px;">
+        <span class="text-muted small">Cobertura:</span>
+        <div style="flex:1;height:18px;background:var(--bg);border-radius:3px;overflow:hidden;">
+          <div style="width:40%;height:100%;background:rgba(240,96,112,.5);"></div>
+        </div>
+        <span class="wf-badge rose">40%</span>
+      </div>
+    </div>
+    <div class="wf-card" style="flex:1;min-width:240px;">
+      <div class="wf-card-title">Assignments actuales</div>
+      <div class="wf-placeholder" style="min-height:80px;">Sin assignments<br>(proyecto en pipeline)</div>
+      <button class="chat-send" style="margin-top:12px;font-size:14px;padding:6px 14px;width:100%;">+ Proponer assignment</button>
+    </div>
+  </div>
+
+  <div class="wf-card">
+    <div class="wf-card-title">Timeline</div>
+    <div style="position:relative;height:80px;margin-top:8px;">
+      <!-- timeline axis -->
+      <div style="position:absolute;top:38px;left:0;right:0;height:2px;background:var(--border);border-top:1.5px dashed var(--border);"></div>
+      <!-- week markers -->
+      <div style="display:flex;justify-content:space-between;position:absolute;top:20px;left:0;right:0;font-family:var(--font-mono);font-size:11px;color:var(--text2);">
+        <span>W19 May12</span><span>W20</span><span>W21</span><span>W22</span><span>W23 Jun6</span>
+      </div>
+      <!-- project bar -->
+      <div style="position:absolute;top:46px;left:0;right:0;height:24px;background:rgba(240,192,80,.2);border:1.5px dashed var(--warn);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--warn);">
+        pentest_web — 4 semanas — sin assignments todavía
+      </div>
+    </div>
+  </div>
+
+  <div class="wf-card">
+    <div class="wf-card-title">Notas (notes/projects/PT-2026-018.md)</div>
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div style="border-left:2px dashed var(--border);padding-left:12px;">
+        <div class="mono" style="font-size:11px;color:var(--text2);margin-bottom:4px;">2026-04-10 | fer | tags: scoping, aws</div>
+        <div style="font-size:14px;">Necesitamos alguien con experiencia en hacking_cloud para la fase AWS del proyecto. Evaluar si tbd_01 puede crecer aquí.</div>
+      </div>
+      <div style="border-left:2px dashed var(--border);padding-left:12px;">
+        <div class="mono" style="font-size:11px;color:var(--text2);margin-bottom:4px;">2026-04-08 | santi | tags: client-alfa, kickoff</div>
+        <div style="font-size:14px;">Kickoff 7 mayo. Confirmado scope: web app + API + backend AWS. Reporting en inglés.</div>
+      </div>
+    </div>
+    <div style="margin-top:16px;border-top:1px dashed var(--border);padding-top:12px;">
+      <textarea placeholder="Añadir nota al proyecto..." style="width:100%;background:var(--bg);border:1.5px dashed var(--border);border-radius:6px;padding:8px 12px;color:var(--text);font-family:var(--font-sketch);font-size:14px;resize:vertical;min-height:60px;outline:none;"></textarea>
+      <button class="chat-send" style="margin-top:8px;font-size:14px;padding:6px 14px;">Añadir nota</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========== SCHEDULE ========== -->
+<div class="page" id="page-schedule">
+  <div class="page-title">Schedule</div>
+  <div class="page-sub">Heatmap dedicación por persona × semana — hover para breakdown, click para detalle</div>
+
+  <div class="wf-row" style="margin-bottom:8px;align-items:center;gap:8px;">
+    <span class="small text-muted">Rango:</span>
+    <input type="week" value="2026-W15" class="tweak-select" style="padding:3px 8px;">
+    <span class="small text-muted">→</span>
+    <input type="week" value="2026-W18" class="tweak-select" style="padding:3px 8px;">
+    <button class="je-btn" style="padding:3px 10px;font-size:13px;">Aplicar</button>
+    <span class="small text-muted" style="margin-left:8px;">· 4 semanas</span>
+  </div>
+
+  <div class="wf-card" style="overflow-x:auto;position:relative;height:600.15px;padding-top:20px;" id="schedule-card">
+    <div id="schedule-heatmap"></div>
+  </div>
+
+  <div style="display:flex;gap:12px;margin-top:12px;font-size:13px;color:var(--text2);align-items:center;">
+    <span>Leyenda:</span>
+    <span style="display:inline-flex;align-items:center;gap:4px;"><span style="width:16px;height:16px;border-radius:3px;background:rgba(30,155,224,.1);border:1px solid rgba(30,155,224,.2);"></span> 0-40%</span>
+    <span style="display:inline-flex;align-items:center;gap:4px;"><span style="width:16px;height:16px;border-radius:3px;background:rgba(30,155,224,.3);"></span> 40-70%</span>
+    <span style="display:inline-flex;align-items:center;gap:4px;"><span style="width:16px;height:16px;border-radius:3px;background:rgba(30,155,224,.55);"></span> 70-100%</span>
+    <span style="display:inline-flex;align-items:center;gap:4px;"><span style="width:16px;height:16px;border-radius:3px;background:rgba(240,96,112,.5);"></span> >100% ⚠</span>
+  </div>
+</div>
+
+<!-- ========== SKILLS ========== -->
+<div class="page" id="page-skills">
+  <div class="page-title">Skills</div>
+  <div class="page-sub">Matriz equipo × skills — toggle entre niveles y gap analysis</div>
+
+  <div class="journal-tabs" style="margin-bottom:16px;">
+    <div class="journal-tab active" onclick="showSkillView('matrix',this)">Matriz de niveles</div>
+    <div class="journal-tab" onclick="showSkillView('gap',this)">Skill gap (pipeline)</div>
+  </div>
+
+  <div id="skills-matrix-view" class="wf-card skills-matrix" style="overflow-x:auto;">
+    <table>
+      <thead>
+        <tr>
+          <th class="row-header"></th>
+          <th>web</th><th>ad</th><th>osint</th><th>priv</th><th>pivot</th><th>cloud</th><th>report</th><th>auto</th><th>phish</th><th>evas</th>
+        </tr>
+      </thead>
+      <tbody id="skills-tbody"></tbody>
+    </table>
+  </div>
+
+  <div id="skills-gap-view" class="wf-card" style="display:none;">
+    <div class="wf-card-title">Skills requeridas por pipeline vs disponibles</div>
+    <div style="display:flex;flex-direction:column;gap:10px;margin-top:12px;" id="gap-bars"></div>
+  </div>
+</div>
+
+<!-- ========== MAP ========== -->
+<div class="page" id="page-map">
+  <div class="page-title">Map</div>
+  <div class="page-sub">Distribución geográfica por oficina</div>
+
+  <div class="map-container">
+    <!-- Stylized wireframe map with grid lines -->
+    <svg width="100%" height="100%" style="position:absolute;top:0;left:0;opacity:.15;">
+      <defs><pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+        <path d="M 40 0 L 0 0 0 40" fill="none" stroke="currentColor" stroke-width=".5"/>
+      </pattern></defs>
+      <rect width="100%" height="100%" fill="url(#grid)"/>
+    </svg>
+    <div class="map-marker" style="top:38%;left:35%;" onclick="showMapPopover(event,'Madrid',['fer','santi','tbd_??'])" title="Madrid">3</div>
+    <div class="map-marker" style="top:36%;left:40%;" onclick="showMapPopover(event,'Barcelona',['tbd_01','tbd_02'])" title="Barcelona">2</div>
+    <div class="map-marker" style="top:42%;left:30%;" onclick="showMapPopover(event,'Lisboa',['tbd_04'])" title="Lisboa">1</div>
+    <div class="wf-popover" id="map-popover"></div>
+    <div style="position:absolute;bottom:16px;left:16px;font-size:13px;color:var(--text2);">
+      MapLibre + OSM tiles · click marcador → popover con personas
+    </div>
+  </div>
+</div>
+
+<!-- ========== JOURNAL ========== -->
+<div class="page" id="page-journal">
+  <div class="page-title">Journal</div>
+  <div class="page-sub">Inbox de propuestas — aplica o rechaza</div>
+
+  <div class="journal-tabs">
+    <div class="journal-tab active">Pending <span class="wf-badge amber" style="margin-left:4px;">1</span></div>
+    <div class="journal-tab">Applied</div>
+    <div class="journal-tab">Rejected</div>
+  </div>
+
+  <div class="journal-entry">
+    <div style="display:flex;flex-direction:column;align-items:center;min-width:48px;">
+      <span class="wf-badge amber">pending</span>
+      <span class="mono" style="font-size:10px;margin-top:4px;">llm</span>
+    </div>
+    <div class="je-body">
+      <div style="font-weight:600;margin-bottom:2px;">
+        <span class="mono" style="font-size:11px;color:var(--text2)">skill_update</span>
+        Subir tbd_01.hacking_web de L3 → L4
+      </div>
+      <div class="small text-muted">
+        Propuesto por el asistente tras revisar desempeño en PT-2026-012.
+        <br><span class="mono" style="font-size:10px;">01HYXZ... · hace 5h</span>
+      </div>
+    </div>
+    <div class="je-actions">
+      <button class="je-btn apply">✓ Aplicar</button>
+      <button class="je-btn reject" onclick="openRejectDialog()">✗ Rechazar</button>
+    </div>
+  </div>
+
+  <div style="border-top:1px dashed var(--border);margin:20px 0;"></div>
+  <div class="small text-muted">Historial reciente (applied):</div>
+
+  <div class="journal-entry" style="opacity:.6;">
+    <div style="display:flex;flex-direction:column;align-items:center;min-width:48px;">
+      <span class="wf-badge green">applied</span>
+      <span class="mono" style="font-size:10px;margin-top:4px;">llm</span>
+    </div>
+    <div class="je-body">
+      <div style="font-weight:600;margin-bottom:2px;">
+        <span class="mono" style="font-size:11px;color:var(--text2)">assign</span>
+        santi → PT-2026-014, 50%, lead
+      </div>
+      <div class="small text-muted">
+        <span class="mono" style="font-size:10px;">01HYXW... · hace 2h · applied 14:32</span>
+      </div>
+    </div>
+    <div class="je-actions"></div>
+  </div>
+
+  <div class="journal-entry" style="opacity:.6;">
+    <div style="display:flex;flex-direction:column;align-items:center;min-width:48px;">
+      <span class="wf-badge green">applied</span>
+      <span class="mono" style="font-size:10px;margin-top:4px;">human</span>
+    </div>
+    <div class="je-body">
+      <div style="font-weight:600;margin-bottom:2px;">
+        <span class="mono" style="font-size:11px;color:var(--text2)">availability</span>
+        fer: PTO 21–25 abr, 100%
+      </div>
+      <div class="small text-muted">
+        <span class="mono" style="font-size:10px;">01HYXU... · hace 1d · applied ayer</span>
+      </div>
+    </div>
+    <div class="je-actions"></div>
+  </div>
+</div>
+
+<!-- ========== CHAT ========== -->
+<div class="page" id="page-chat">
+  <div class="page-title">Chat</div>
+  <div class="page-sub">Consulta al asistente — propuestas van al Journal</div>
+
+  <div class="chat-layout">
+    <div class="chat-main">
+      <div class="chat-messages">
+        <div style="padding:4px 10px;margin-bottom:10px;border:1px dashed var(--border);border-radius:4px;display:inline-block;font-size:12px;color:var(--text2);font-family:var(--font-mono);">demo · 3 flows típicos</div>
+
+        <div class="chat-msg user">¿Dónde me falta gente para el pipeline?</div>
+        <div class="chat-msg assistant">
+          <div style="font-size:13px;color:var(--accent);font-family:var(--font-mono);margin-bottom:6px;">⚡ skill_gap(pipeline)</div>
+          Pipeline pide 3 proyectos. Ordenado por weight:<br>
+          1. <strong>hacking_cloud</strong> (weight 3, PT-2026-018) — falta 1 nivel, mejor fer L2.<br>
+          2. <strong>evasion_defensas</strong> (weight 3, RT-2026-005) — sin cobertura.<br>
+          3. <strong>escalada_privilegios</strong> (weight 2, PT-2026-018) — ✓ santi L4.<br><br>
+          Prioridad: contratar o formar en <strong>cloud + evasion</strong>.
+        </div>
+
+        <div class="chat-msg user">
+          ¿Quién tiene nivel ≥3 en hacking_active_directory y está libre la semana 17?
+        </div>
+        <div class="chat-msg assistant">
+          <div style="font-size:13px;color:var(--accent);font-family:var(--font-mono);margin-bottom:6px;">⚡ find_people + who_is_free</div>
+          <strong>fer</strong> (Madrid, L4 en hacking_ad) — libre 20% semana 17.<br>
+          <strong>santi</strong> (Madrid, L4) — asignado 100%, no disponible.<br>
+          <strong>tbd_02</strong> (Barcelona, L3) — libre 50%.<br><br>
+          Recomendaría <strong>fer</strong> si puede asumir un 20% más, o <strong>tbd_02</strong> como executor con supervisión.
+        </div>
+        <div class="chat-msg user">
+          Mete a tbd_02 al 50% en PT-2026-018 desde el lunes como executor
+        </div>
+        <div class="chat-msg assistant">
+          <div style="font-size:13px;color:var(--accent);font-family:var(--font-mono);margin-bottom:6px;">⚡ propose_assignment</div>
+          Propuesta registrada en el journal<span class="streaming-cursor"></span>
+          <div style="margin-top:8px;padding:8px 12px;background:rgba(30,155,224,.08);border:1px dashed rgba(30,155,224,.3);border-radius:6px;font-size:13px;">
+            📋 <a href="#" style="color:var(--accent);">Ver en Journal →</a> entry 01HYXZ...
+          </div>
+        </div>
+      </div>
+      <div class="chat-input-bar">
+        <input class="chat-input" placeholder="Pregunta al asistente..." disabled>
+        <button class="chat-send">Enviar</button>
+      </div>
+    </div>
+    <div class="chat-panel">
+      <div class="wf-card-title">Tool calls</div>
+      <div class="tool-card">
+        <div class="tool-card-header">find_people</div>
+        <div class="mono" style="font-size:11px;color:var(--text2);">skill=hacking_ad, min_level=3</div>
+        <div style="margin-top:4px;font-size:12px;">→ fer (L4), santi (L4), tbd_02 (L3)</div>
+      </div>
+      <div class="tool-card">
+        <div class="tool-card-header">who_is_free</div>
+        <div class="mono" style="font-size:11px;color:var(--text2);">week=2026-W17, min_pct=50</div>
+        <div style="margin-top:4px;font-size:12px;">→ fer 20%, tbd_02 50%, tbd_04 70%</div>
+      </div>
+      <div class="tool-card">
+        <div class="tool-card-header">propose_assignment</div>
+        <div class="mono" style="font-size:11px;color:var(--text2);">tbd_02, PT-2026-018, 50%, executor</div>
+        <div style="margin-top:4px;font-size:12px;color:var(--accent);">→ journal entry 01HYXZ... pending</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ========== CLIENTS ========== -->
+<div class="page" id="page-clients">
+  <div class="page-title">Clients</div>
+  <div class="page-sub">Directorio de clientes — proyectos, contactos y notas</div>
+
+  <div style="display:flex;gap:16px;">
+
+  <!-- CLIENT LIST -->
+  <div style="width:260px;flex-shrink:0;">
+    <div style="margin-bottom:10px;">
+      <input type="text" placeholder="Buscar cliente..." style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:8px 12px;color:var(--text);font-family:var(--font-sketch);font-size:14px;outline:none;">
+    </div>
+    <div id="client-alfa" onclick="showClient('alfa',this)" class="client-list-item active">
+      <div style="font-weight:600;">Cliente Alfa</div>
+      <div class="small text-muted">2 proyectos · 1 activo</div>
+    </div>
+    <div id="client-gamma" onclick="showClient('gamma',this)" class="client-list-item">
+      <div style="font-weight:600;">Cliente Gamma</div>
+      <div class="small text-muted">1 proyecto · 1 activo</div>
+    </div>
+    <div id="client-epsilon" onclick="showClient('epsilon',this)" class="client-list-item">
+      <div style="font-weight:600;">Cliente Epsilon</div>
+      <div class="small text-muted">1 proyecto · activo</div>
+    </div>
+    <div style="margin-top:8px;">
+      <button class="je-btn" style="width:100%;padding:7px;font-size:13px;">+ Nuevo cliente</button>
+    </div>
+  </div>
+
+  <!-- CLIENT DETAIL -->
+  <div style="flex:1;display:flex;flex-direction:column;gap:14px;" id="client-detail">
+
+    <!-- CLIENT ALFA -->
+    <div class="client-panel" id="panel-alfa">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+        <div>
+          <div class="page-title" style="font-size:26px;">Cliente Alfa</div>
+          <div class="small text-muted">Sector: Banca · Tamaño: Enterprise · País: ES</div>
+        </div>
+        <span class="wf-badge green">activo</span>
+      </div>
+
+      <div class="wf-card">
+        <div class="wf-card-title">Descripción</div>
+        <div style="font-size:14px;color:var(--text);">Gran banco español con infraestructura híbrida AWS/on-prem. Foco en compliance PCI-DSS y tests anuales de red team. Relación desde 2023.</div>
+      </div>
+
+      <div class="wf-card">
+        <div class="wf-card-title">Proyectos</div>
+        <table class="wf-table">
+          <thead><tr><th>Código</th><th>Tipo</th><th>Ventana</th><th>Status</th><th>Cobertura</th></tr></thead>
+          <tbody>
+            <tr onclick="goToPage('project-detail')" style="cursor:pointer;">
+              <td class="mono">PT-2026-018</td><td>pentest_web</td><td>May 12 → Jun 6</td>
+              <td><span class="wf-badge amber">pipeline</span></td>
+              <td><span class="wf-badge rose">40%</span></td>
+            </tr>
+            <tr>
+              <td class="mono">RT-2025-011</td><td>red_team</td><td>Oct 2025</td>
+              <td><span class="wf-badge gray">closed</span></td>
+              <td><span class="wf-badge green">100%</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="wf-card">
+        <div class="wf-card-title">Contactos</div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <div style="display:flex;gap:12px;align-items:center;">
+            <div style="width:36px;height:36px;border-radius:50%;background:rgba(30,155,224,.15);border:1px solid #1e9be0;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;color:#1e9be0;">JM</div>
+            <div>
+              <div style="font-weight:600;">Juan Martínez</div>
+              <div class="small text-muted">CISO · juan.martinez@alfa.com</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:12px;align-items:center;">
+            <div style="width:36px;height:36px;border-radius:50%;background:rgba(30,155,224,.15);border:1px solid #1e9be0;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;color:#1e9be0;">LR</div>
+            <div>
+              <div style="font-weight:600;">Laura Ruiz</div>
+              <div class="small text-muted">IT Manager · laura.ruiz@alfa.com</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="wf-card">
+        <div class="wf-card-title">Placeholders futuros</div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <div class="wf-placeholder" style="flex:1;min-width:160px;min-height:70px;">SLA / Contrato</div>
+          <div class="wf-placeholder" style="flex:1;min-width:160px;min-height:70px;">Facturación histórica</div>
+          <div class="wf-placeholder" style="flex:1;min-width:160px;min-height:70px;">NPS / Satisfacción</div>
+        </div>
+      </div>
+
+      <div class="wf-card">
+        <div class="wf-card-title">Notas</div>
+        <div style="border-left:2px solid var(--border);padding-left:12px;font-size:14px;">2026-03-10 | fer | Kickoff RT-2025-011 bien recibido. Piden test cloud AWS para Q2 2026.</div>
+        <div style="margin-top:12px;border-top:1px solid var(--border);padding-top:10px;">
+          <textarea placeholder="Añadir nota..." style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:8px 12px;color:var(--text);font-family:var(--font-sketch);font-size:14px;resize:vertical;min-height:60px;outline:none;"></textarea>
+          <button class="chat-send" style="margin-top:6px;font-size:13px;padding:5px 14px;">Añadir nota</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- CLIENT GAMMA -->
+    <div class="client-panel" id="panel-gamma" style="display:none;">
+      <div class="page-title" style="font-size:26px;">Cliente Gamma</div>
+      <div class="small text-muted" style="margin-bottom:14px;">Sector: Retail · Tamaño: Mid-market · País: ES</div>
+      <div class="wf-card"><div class="wf-card-title">Proyectos</div>
+        <table class="wf-table"><thead><tr><th>Código</th><th>Tipo</th><th>Ventana</th><th>Status</th></tr></thead>
+        <tbody><tr><td class="mono">PT-2026-012</td><td>pentest_web</td><td>Abr 7 → Abr 25</td><td><span class="wf-badge green">active</span></td></tr></tbody></table>
+      </div>
+      <div class="wf-card mt-md"><div class="wf-card-title">Contactos</div>
+        <div class="wf-placeholder" style="min-height:60px;">Sin contactos aún</div>
+      </div>
+      <div class="wf-card mt-md">
+        <div class="wf-card-title">Placeholders futuros</div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <div class="wf-placeholder" style="flex:1;min-width:160px;min-height:70px;">SLA / Contrato</div>
+          <div class="wf-placeholder" style="flex:1;min-width:160px;min-height:70px;">Facturación histórica</div>
+          <div class="wf-placeholder" style="flex:1;min-width:160px;min-height:70px;">NPS / Satisfacción</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CLIENT EPSILON -->
+    <div class="client-panel" id="panel-epsilon" style="display:none;">
+      <div class="page-title" style="font-size:26px;">Cliente Epsilon</div>
+      <div class="small text-muted" style="margin-bottom:14px;">Sector: Energía · Tamaño: Enterprise · País: PT</div>
+      <div class="wf-card"><div class="wf-card-title">Proyectos</div>
+        <table class="wf-table"><thead><tr><th>Código</th><th>Tipo</th><th>Ventana</th><th>Status</th></tr></thead>
+        <tbody><tr><td class="mono">RT-2026-003</td><td>red_team</td><td>Mar 1 → Abr 30</td><td><span class="wf-badge green">active</span></td></tr></tbody></table>
+      </div>
+      <div class="wf-card mt-md"><div class="wf-card-title">Contactos</div>
+        <div class="wf-placeholder" style="min-height:60px;">Sin contactos aún</div>
+      </div>
+      <div class="wf-card mt-md">
+        <div class="wf-card-title">Placeholders futuros</div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <div class="wf-placeholder" style="flex:1;min-width:160px;min-height:70px;">SLA / Contrato</div>
+          <div class="wf-placeholder" style="flex:1;min-width:160px;min-height:70px;">Facturación histórica</div>
+          <div class="wf-placeholder" style="flex:1;min-width:160px;min-height:70px;">NPS / Satisfacción</div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /detail -->
+  </div><!-- /flex -->
+</div>
+
+<!-- ========== SEARCH ========== -->
+<div class="page" id="page-search">
+  <div class="page-title">Search</div>
+  <div class="page-sub">Búsqueda full-text en personas, proyectos y notas</div>
+
+  <div class="search-bar">
+    <input class="search-input" value="hacking cloud" disabled>
+  </div>
+
+  <div style="display:flex;gap:24px;align-items:flex-start;">
+
+  <!-- FACETS -->
+  <aside style="width:240px;flex-shrink:0;position:sticky;top:0;">
+    <div class="wf-card" style="padding:14px 16px;">
+      <div class="mono" style="font-size:11px;color:var(--text2);margin-bottom:10px;">filtros</div>
+
+      <div class="small text-muted" style="margin-bottom:4px;">Tipo</div>
+      <label style="display:block;font-size:13px;padding:3px 0;"><input type="checkbox" checked style="vertical-align:middle;"> personas <span class="text-muted">(2)</span></label>
+      <label style="display:block;font-size:13px;padding:3px 0;"><input type="checkbox" checked style="vertical-align:middle;"> proyectos <span class="text-muted">(1)</span></label>
+      <label style="display:block;font-size:13px;padding:3px 0;"><input type="checkbox" checked style="vertical-align:middle;"> notas <span class="text-muted">(1)</span></label>
+      <label style="display:block;font-size:13px;padding:3px 0;color:var(--text2);"><input type="checkbox" style="vertical-align:middle;"> skills <span class="text-muted">(0)</span></label>
+      <label style="display:block;font-size:13px;padding:3px 0;color:var(--text2);"><input type="checkbox" style="vertical-align:middle;"> journal <span class="text-muted">(0)</span></label>
+
+      <div class="small text-muted" style="margin:14px 0 4px;">Rango fechas (notas)</div>
+      <input type="date" value="2026-01-01" class="tweak-select" style="width:100%;padding:5px 8px;margin-bottom:4px;">
+      <input type="date" value="2026-12-31" class="tweak-select" style="width:100%;padding:5px 8px;">
+
+      <div class="small text-muted" style="margin:14px 0 6px;">Tags notas</div>
+      <span class="wf-badge" style="cursor:pointer;margin:2px 4px 2px 0;display:inline-block;">cloud</span>
+      <span class="wf-badge" style="cursor:pointer;margin:2px 4px 2px 0;display:inline-block;">mentoring</span>
+      <span class="wf-badge" style="cursor:pointer;margin:2px 4px 2px 0;display:inline-block;">cti</span>
+      <span class="wf-badge" style="cursor:pointer;margin:2px 4px 2px 0;display:inline-block;">pto</span>
+      <span class="wf-badge" style="cursor:pointer;margin:2px 4px 2px 0;display:inline-block;opacity:.5;">+ 12 más</span>
+
+      <div class="small text-muted" style="margin:14px 0 4px;">Orden</div>
+      <select class="tweak-select" style="width:100%;padding:5px 8px;">
+        <option>Relevancia</option><option>Fecha ↓</option><option>Fecha ↑</option><option>A-Z</option>
+      </select>
+
+      <button class="je-btn" style="width:100%;margin-top:14px;padding:6px;font-size:12px;">Limpiar filtros</button>
+    </div>
+  </aside>
+
+  <!-- RESULTS -->
+  <div style="flex:1;min-width:0;">
+
+  <div class="mono" style="font-size:11px;color:var(--text2);margin-bottom:8px;">4 resultados · 38 ms · índice SQLite FTS5</div>
+
+  <div class="search-group-title">Personas (2)</div>
+  <div class="search-result">
+    <span class="mono" style="font-size:12px;color:var(--accent);">fer</span> — Fernando R. · <span class="text-muted small">skills: hacking_<mark style="background:rgba(30,155,224,.2);color:var(--accent);">cloud</mark> L2</span>
+  </div>
+  <div class="search-result">
+    <span class="mono" style="font-size:12px;color:var(--accent);">tbd_02</span> — Operador 02 · <span class="text-muted small">growth_interest: hacking_<mark style="background:rgba(30,155,224,.2);color:var(--accent);">cloud</mark></span>
+  </div>
+
+  <div class="search-group-title">Proyectos (1)</div>
+  <div class="search-result">
+    <span class="mono" style="font-size:12px;color:var(--accent);">PT-2026-018</span> — Cliente Alfa · <span class="text-muted small">required: hacking_<mark style="background:rgba(30,155,224,.2);color:var(--accent);">cloud</mark> ≥3 (w2)</span>
+  </div>
+
+  <div class="search-group-title">Notas (1)</div>
+  <div class="search-result">
+    <span class="mono" style="font-size:12px;color:var(--accent);">notes/projects/PT-2026-018.md</span><br>
+    <span class="text-muted small">...necesitamos alguien con experiencia en hacking_<mark style="background:rgba(30,155,224,.2);color:var(--accent);">cloud</mark> para la fase AWS del proyecto...</span>
+  </div>
+
+  </div><!-- /results -->
+  </div><!-- /flex wrapper -->
+</div>
+
+</div><!-- /main -->
+
+<!-- REJECT DIALOG -->
+<div class="drawer-overlay" id="reject-overlay" onclick="closeRejectDialog()" style="align-items:center;justify-content:center;">
+  <div onclick="event.stopPropagation()" style="background:var(--surface);border:1.5px dashed var(--border);border-radius:10px;padding:24px 28px;width:480px;max-width:90vw;position:relative;">
+    <button onclick="closeRejectDialog()" style="position:absolute;top:12px;right:14px;background:transparent;border:none;color:var(--text2);font-size:22px;cursor:pointer;line-height:1;padding:4px 8px;" title="Cerrar">✕</button>
+    <div style="font-size:20px;font-weight:600;margin-bottom:4px;">Rechazar propuesta</div>
+    <div class="mono" style="font-size:12px;color:var(--text2);margin-bottom:16px;">skill_update · tbd_01.hacking_web L3 → L4 · 01HYXZ...</div>
+    <div class="small text-muted" style="margin-bottom:6px;">Razón (obligatoria)</div>
+    <textarea placeholder="Ej: pendiente de confirmar con PM de PT-2026-012; revisar en 1 mes." style="width:100%;background:var(--bg);border:1.5px dashed var(--border);border-radius:6px;padding:10px 12px;color:var(--text);font-family:var(--font-sketch);font-size:14px;resize:vertical;min-height:80px;outline:none;"></textarea>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:16px;">
+      <button class="je-btn" onclick="closeRejectDialog()">Cancelar</button>
+      <button class="je-btn reject" onclick="closeRejectDialog()">Confirmar rechazo</button>
+    </div>
+  </div>
+</div>
+
+<!-- NEW PROJECT MODAL -->
+<div class="drawer-overlay" id="new-project-modal" style="align-items:center;justify-content:center;">
+  <div onclick="event.stopPropagation()" style="background:var(--surface);border:1.5px dashed var(--border);border-radius:10px;padding:24px 28px;width:560px;max-width:90vw;max-height:90vh;overflow-y:auto;position:relative;">
+    <button onclick="document.getElementById('new-project-modal').style.display='none'" style="position:absolute;top:12px;right:14px;background:transparent;border:none;color:var(--text2);font-size:22px;cursor:pointer;line-height:1;padding:4px 8px;" title="Cerrar">✕</button>
+    <div style="font-size:20px;font-weight:600;margin-bottom:4px;">Nuevo proyecto</div>
+    <div class="small text-muted" style="margin-bottom:16px;">Se creará como entry <code class="mono">proposed</code> en el journal. Aplicar después en <a href="#" onclick="document.getElementById('new-project-modal').style.display='none';goToPage('journal');return false;" style="color:var(--accent);">/journal</a>.</div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px 16px;">
+      <div><div class="small text-muted" style="margin-bottom:4px;">Código *</div><input type="text" placeholder="PT-2026-020" style="width:100%;background:var(--bg);border:1.5px dashed var(--border);border-radius:6px;padding:8px 10px;color:var(--text);font-family:var(--font-mono);font-size:13px;"></div>
+      <div><div class="small text-muted" style="margin-bottom:4px;">Tipo *</div><select class="tweak-select" style="width:100%;padding:8px 10px;"><option>pentest_web</option><option>pentest_infra</option><option>red_team</option><option>purple_team</option><option>cti</option><option>osint</option><option>otro</option></select></div>
+      <div><div class="small text-muted" style="margin-bottom:4px;">Cliente</div><input type="text" placeholder="Cliente Alfa" style="width:100%;background:var(--bg);border:1.5px dashed var(--border);border-radius:6px;padding:8px 10px;color:var(--text);font-family:var(--font-sketch);font-size:14px;"></div>
+      <div><div class="small text-muted" style="margin-bottom:4px;">Status</div><select class="tweak-select" style="width:100%;padding:8px 10px;"><option>pipeline</option><option>activo</option></select></div>
+      <div><div class="small text-muted" style="margin-bottom:4px;">Inicio *</div><input type="date" value="2026-05-12" style="width:100%;background:var(--bg);border:1.5px dashed var(--border);border-radius:6px;padding:8px 10px;color:var(--text);font-family:var(--font-mono);font-size:13px;"></div>
+      <div><div class="small text-muted" style="margin-bottom:4px;">Fin *</div><input type="date" value="2026-06-06" style="width:100%;background:var(--bg);border:1.5px dashed var(--border);border-radius:6px;padding:8px 10px;color:var(--text);font-family:var(--font-mono);font-size:13px;"></div>
+      <div style="grid-column:span 2;"><div class="small text-muted" style="margin-bottom:4px;">Skills requeridos (skill:weight, coma)</div><input type="text" placeholder="hacking_web:3, hacking_cloud:3, reporting:2" style="width:100%;background:var(--bg);border:1.5px dashed var(--border);border-radius:6px;padding:8px 10px;color:var(--text);font-family:var(--font-mono);font-size:13px;"></div>
+      <div style="grid-column:span 2;"><div class="small text-muted" style="margin-bottom:4px;">Notas iniciales</div><textarea placeholder="Contexto, PM, urgencia…" style="width:100%;background:var(--bg);border:1.5px dashed var(--border);border-radius:6px;padding:10px 12px;color:var(--text);font-family:var(--font-sketch);font-size:14px;resize:vertical;min-height:60px;"></textarea></div>
+    </div>
+
+    <div style="margin-top:12px;padding:10px 12px;border:1px dashed var(--border);border-radius:6px;background:var(--bg);">
+      <div class="mono" style="font-size:11px;color:var(--text2);margin-bottom:4px;">→ journal entry generado</div>
+      <div class="mono" style="font-size:12px;">op: create_project · proposer: human · status: pending</div>
+    </div>
+
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:16px;">
+      <button class="je-btn" onclick="document.getElementById('new-project-modal').style.display='none'">Cancelar</button>
+      <button class="je-btn primary" onclick="document.getElementById('new-project-modal').style.display='none'">Crear entry</button>
+    </div>
+  </div>
+</div>
+
+<!-- NEW AVAILABILITY MODAL -->
+<div class="drawer-overlay" id="new-avail-modal" style="align-items:center;justify-content:center;">
+  <div onclick="event.stopPropagation()" style="background:var(--surface);border:1.5px dashed var(--border);border-radius:10px;padding:24px 28px;width:480px;max-width:90vw;position:relative;">
+    <button onclick="document.getElementById('new-avail-modal').style.display='none'" style="position:absolute;top:12px;right:14px;background:transparent;border:none;color:var(--text2);font-size:22px;cursor:pointer;line-height:1;padding:4px 8px;" title="Cerrar">✕</button>
+    <div style="font-size:20px;font-weight:600;margin-bottom:4px;">Nueva disponibilidad</div>
+    <div class="small text-muted" style="margin-bottom:16px;">Persona: <span class="mono" style="color:var(--accent);">fer</span> · se creará como entry <code class="mono">proposed</code>.</div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px 16px;">
+      <div><div class="small text-muted" style="margin-bottom:4px;">Tipo *</div><select class="tweak-select" style="width:100%;padding:8px 10px;"><option>pto</option><option>training</option><option>sick</option><option>other</option></select></div>
+      <div><div class="small text-muted" style="margin-bottom:4px;">% impacto</div><select class="tweak-select" style="width:100%;padding:8px 10px;"><option>100</option><option>75</option><option>50</option><option>25</option></select></div>
+      <div><div class="small text-muted" style="margin-bottom:4px;">Inicio *</div><input type="date" value="2026-05-11" style="width:100%;background:var(--bg);border:1.5px dashed var(--border);border-radius:6px;padding:8px 10px;color:var(--text);font-family:var(--font-mono);font-size:13px;"></div>
+      <div><div class="small text-muted" style="margin-bottom:4px;">Fin *</div><input type="date" value="2026-05-15" style="width:100%;background:var(--bg);border:1.5px dashed var(--border);border-radius:6px;padding:8px 10px;color:var(--text);font-family:var(--font-mono);font-size:13px;"></div>
+      <div style="grid-column:span 2;"><div class="small text-muted" style="margin-bottom:4px;">Motivo / nota</div><input type="text" placeholder="HTB Cloud course" style="width:100%;background:var(--bg);border:1.5px dashed var(--border);border-radius:6px;padding:8px 10px;color:var(--text);font-family:var(--font-sketch);font-size:14px;"></div>
+    </div>
+
+    <div style="margin-top:12px;padding:10px 12px;border:1px dashed var(--border);border-radius:6px;background:var(--bg);">
+      <div class="mono" style="font-size:11px;color:var(--text2);margin-bottom:4px;">→ journal entry generado</div>
+      <div class="mono" style="font-size:12px;">op: add_availability · person: fer · proposer: human · status: pending</div>
+    </div>
+
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:16px;">
+      <button class="je-btn" onclick="document.getElementById('new-avail-modal').style.display='none'">Cancelar</button>
+      <button class="je-btn primary" onclick="document.getElementById('new-avail-modal').style.display='none'">Crear entry</button>
+    </div>
+  </div>
+</div>
+
+<!-- TWEAKS PANEL -->
+<div class="tweaks-panel" id="tweaks-panel">
+  <div class="tweaks-title">Tweaks</div>
+  <div class="tweak-row">
+    <label>Sidebar</label>
+    <select class="tweak-select" id="tweak-sidebar" onchange="applySidebarTweak(this.value)">
+      <option value="full">Expandida (texto + iconos)</option>
+      <option value="mini">Mini (solo iconos)</option>
+    </select>
+  </div>
+  <div class="tweak-row">
+    <label>Schedule interacción</label>
+    <select class="tweak-select" id="tweak-schedule" onchange="applyScheduleTweak(this.value)">
+      <option value="hover">Hover tooltip</option>
+      <option value="click">Click popover</option>
+    </select>
+  </div>
+</div>
+
+<script>
+const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+  "sidebarStyle": "full",
+  "scheduleInteraction": "hover"
+}/*EDITMODE-END*/;
+
+// --- NAV ---
+const navItems = document.querySelectorAll('.nav-item');
+const pages = document.querySelectorAll('.page');
+navItems.forEach(item => {
+  item.addEventListener('click', () => {
+    navItems.forEach(n => n.classList.remove('active'));
+    pages.forEach(p => p.classList.remove('active'));
+    item.classList.add('active');
+    document.getElementById('page-' + item.dataset.page).classList.add('active');
+  });
+});
+
+// --- DRAWER ---
+function openDrawer(id) {
+  document.getElementById('drawer-overlay').classList.add('open');
+}
+function closeDrawer() {
+  document.getElementById('drawer-overlay').classList.remove('open');
+}
+
+// --- OVERVIEW HEATMAP ---
+function buildOverviewHeatmap(weeks) {
+  const people = ['fer','santi','tbd_01','tbd_02','tbd_03','tbd_04'];
+  const baseWeek = 15;
+  const cols = [];
+  for (let i = 0; i < weeks; i++) {
+    const w = baseWeek + i;
+    cols.push(w <= 52 ? 'W' + w : 'W' + (w-52));
+  }
+  const patterns = {
+    fer:    [80,80,0,0,0,80,70,70,80,80,0,0,60,80,80,70,80,80,0,0,80,60,70,80,0,0],
+    santi:  [50,100,100,100,100,50,100,100,80,50,100,100,100,50,80,80,100,100,50,100,80,100,50,100,100,50],
+    tbd_01: [60,60,60,0,0,60,60,0,60,60,60,0,0,60,60,60,0,60,60,60,0,60,60,0,0,60],
+    tbd_02: [50,110,50,50,0,50,50,50,0,50,110,50,50,0,50,50,50,50,0,50,50,110,50,0,50,50],
+    tbd_03: [70,70,70,70,70,70,70,70,70,70,70,70,70,70,70,70,70,70,70,70,70,70,70,70,70,70],
+    tbd_04: [30,30,0,0,0,30,0,30,0,30,30,0,0,30,30,0,0,30,30,0,30,0,30,30,0,0],
+  };
+  const el = document.getElementById('overview-heatmap');
+  el.innerHTML = '';
+  const grid = document.createElement('div');
+  grid.className = 'hm-grid';
+  grid.style.gridTemplateColumns = `80px repeat(${cols.length}, 1fr)`;
+  grid.innerHTML += '<div class="hm-header"></div>';
+  cols.forEach(c => grid.innerHTML += `<div class="hm-header" style="font-size:${cols.length > 8 ? '9' : '11'}px;">${c}</div>`);
+  people.forEach((p) => {
+    grid.innerHTML += `<div class="hm-header" style="justify-content:flex-end;padding-right:8px;font-family:var(--font-mono);font-size:11px;">${p}</div>`;
+    cols.forEach((_, j) => {
+      const v = (patterns[p] || [])[j % 26] || 0;
+      const bg = v > 100 ? 'rgba(240,96,112,.5)' : v > 70 ? 'rgba(30,155,224,.55)' : v > 40 ? 'rgba(30,155,224,.3)' : v > 0 ? 'rgba(30,155,224,.1)' : 'rgba(255,255,255,.03)';
+      const label = cols.length <= 8 ? (v ? v + '%' : '') : '';
+      grid.innerHTML += `<div class="hm-cell" style="background:${bg};min-height:${cols.length > 12 ? '18' : '28'}px;" title="${p} ${cols[j]}: ${v}%">${label}</div>`;
+    });
+  });
+  el.appendChild(grid);
+}
+function setOverviewRange(weeks, btn) {
+  document.querySelectorAll('.hm-range-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  buildOverviewHeatmap(weeks);
+}
+buildOverviewHeatmap(5);
+
+// --- SCHEDULE HEATMAP ---
+function buildScheduleHeatmap() {
+  const people = ['fer','santi','tbd_01','tbd_02','tbd_03','tbd_04'];
+  const weeks = ['W15','W16','W17','W18'];
+  const data = [
+    [80,80,80,0],[100,100,100,50],[60,60,60,60],[50,110,50,50],[70,70,70,70],[30,30,30,30]
+  ];
+  const el = document.getElementById('schedule-heatmap');
+  el.innerHTML = '';
+  const grid = document.createElement('div');
+  grid.className = 'hm-grid';
+  grid.style.gridTemplateColumns = `100px repeat(${weeks.length}, 1fr)`;
+
+  grid.innerHTML += '<div class="hm-header"></div>';
+  weeks.forEach(w => grid.innerHTML += `<div class="hm-header">${w}</div>`);
+
+  people.forEach((p, i) => {
+    grid.innerHTML += `<div class="hm-header" style="justify-content:flex-end;padding-right:8px;font-family:var(--font-mono);">${p}</div>`;
+    weeks.forEach((w, j) => {
+      const v = data[i][j];
+      const over = v > 100;
+      const bg = over ? 'rgba(240,96,112,.5)' : v > 70 ? 'rgba(30,155,224,.55)' : v > 40 ? 'rgba(30,155,224,.3)' : v > 0 ? 'rgba(30,155,224,.1)' : 'rgba(255,255,255,.03)';
+      const label = over ? `<span style="color:var(--danger);font-weight:700">${v}% ⚠</span>` : (v ? v + '%' : '');
+      grid.innerHTML += `<div class="hm-cell" style="background:${bg}" data-person="${p}" data-week="${w}" data-val="${v}">${label}</div>`;
+    });
+  });
+  el.appendChild(grid);
+
+  // Interaction
+  grid.querySelectorAll('.hm-cell[data-person]').forEach(cell => {
+    cell.addEventListener('mouseenter', (e) => {
+      if (TWEAK_DEFAULTS.scheduleInteraction === 'hover') showSchedulePopover(e, cell);
+    });
+    cell.addEventListener('mouseleave', () => hideSchedulePopover());
+    cell.addEventListener('click', (e) => {
+      if (TWEAK_DEFAULTS.scheduleInteraction === 'click') showSchedulePopover(e, cell);
+    });
+  });
+}
+
+let schedulePopover;
+function showSchedulePopover(e, cell) {
+  if (!schedulePopover) {
+    schedulePopover = document.createElement('div');
+    schedulePopover.className = 'wf-popover';
+    document.body.appendChild(schedulePopover);
+    schedulePopover.style.position = 'fixed';
+    schedulePopover.style.zIndex = '9999';
+  }
+  const p = cell.dataset.person;
+  const w = cell.dataset.week;
+  const v = cell.dataset.val;
+  const breakdowns = {
+    fer:   [{code:'PT-2026-012',pct:50,role:'lead',h:20},{code:'CTI-2026-003',pct:30,role:'executor',h:12}],
+    santi: [{code:'PT-2026-014',pct:50,role:'lead',h:20},{code:'RT-2026-003',pct:50,role:'executor',h:20}],
+    tbd_01:[{code:'PT-2026-012',pct:40,role:'executor',h:16},{code:'PUR-2026-001',pct:20,role:'shadow',h:8}],
+    tbd_02:[{code:'RT-2026-003',pct:30,role:'executor',h:12},{code:'PUR-2026-001',pct:20,role:'executor',h:8}],
+    tbd_03:[{code:'PT-2026-014',pct:40,role:'executor',h:16},{code:'CTI-2026-003',pct:30,role:'reviewer',h:12}],
+    tbd_04:[{code:'PT-2026-012',pct:20,role:'shadow',h:8},{code:'training',pct:10,role:'—',h:4}],
+  };
+  const items = (breakdowns[p]||[]).map(b =>
+    `<div style="display:flex;justify-content:space-between;gap:12px;"><span class="mono" style="font-size:11px;">${b.code}</span><span>${b.pct}%</span><span class="text-muted">${b.role}</span><span class="text-muted">${b.h}h</span></div>`
+  ).join('');
+  const avail = parseInt(v) > 100 ? `<div style="margin-top:6px;color:var(--danger);font-weight:600;">⚠ Over-allocated ${v}%</div>` : '';
+  schedulePopover.innerHTML = `
+    <div style="font-weight:600;margin-bottom:6px;">${p} · ${w}</div>
+    <div class="mono" style="font-size:12px;margin-bottom:6px;">Total: ${v}%</div>
+    <div style="font-size:13px;display:flex;flex-direction:column;gap:3px;">
+      <div style="display:flex;justify-content:space-between;gap:12px;font-family:var(--font-mono);font-size:10px;color:var(--text2);border-bottom:1px dashed var(--border);padding-bottom:3px;"><span>Proyecto</span><span>%</span><span>Rol</span><span>Hrs</span></div>
+      ${items}
+    </div>
+    ${avail}
+  `;
+  schedulePopover.classList.add('visible');
+  const rect = cell.getBoundingClientRect();
+  const popW = 240;
+  let left = rect.left + rect.width / 2 - popW / 2;
+  let top = rect.top - 10;
+  // flip below if too close to top
+  if (top < 80) {
+    schedulePopover.style.transform = 'translate(0, 0)';
+    top = rect.bottom + 8;
+  } else {
+    schedulePopover.style.transform = 'translateY(-100%)';
+  }
+  left = Math.max(8, Math.min(left, window.innerWidth - popW - 8));
+  schedulePopover.style.left = left + 'px';
+  schedulePopover.style.top = top + 'px';
+  schedulePopover.style.width = popW + 'px';
+}
+function hideSchedulePopover() {
+  if (schedulePopover) schedulePopover.classList.remove('visible');
+}
+buildScheduleHeatmap();
+
+// --- SKILLS MATRIX ---
+function buildSkillsMatrix() {
+  const people = ['fer','santi','tbd_01','tbd_02','tbd_03','tbd_04'];
+  const skills = ['web','ad','osint','priv','pivot','cloud','report','auto','phish','evas'];
+  const data = {
+    fer:    [3,4,4,2,2,2,4,3,1,1],
+    santi:  [4,4,2,4,4,1,3,2,2,2],
+    tbd_01: [3,2,2,2,1,0,2,1,0,0],
+    tbd_02: [2,3,1,2,3,0,2,1,1,2],
+    tbd_03: [2,2,1,2,1,0,2,1,0,0],
+    tbd_04: [1,0,1,0,0,0,1,0,0,0],
+  };
+  const tbody = document.getElementById('skills-tbody');
+  tbody.innerHTML = '';
+  people.forEach(p => {
+    let row = `<td class="row-header" style="font-family:var(--font-mono);font-size:12px;text-align:left;position:sticky;left:0;background:var(--surface);z-index:1;">${p}</td>`;
+    data[p].forEach(v => {
+      const opacity = v === 0 ? 0.03 : v / 5;
+      const color = v === 0 ? 'rgba(255,255,255,.03)' : `rgba(30,155,224,${opacity})`;
+      row += `<td><div class="skill-cell" style="background:${color};padding:2px 4px;">${v || '—'}</div></td>`;
+    });
+    tbody.innerHTML += `<tr>${row}</tr>`;
+  });
+
+  // Gap bars
+  const gapEl = document.getElementById('gap-bars');
+  const gaps = [
+    {skill:'hacking_cloud', need:3, have:1, deficit:2},
+    {skill:'evasion_defensas', need:2, have:0, deficit:2},
+    {skill:'escalada_privilegios', need:4, have:3, deficit:1},
+    {skill:'hacking_contenedores', need:2, have:0, deficit:2},
+  ];
+  gapEl.innerHTML = gaps.map(g => `
+    <div style="display:flex;align-items:center;gap:12px;">
+      <span class="mono" style="font-size:12px;min-width:180px;">${g.skill}</span>
+      <div style="flex:1;height:20px;background:var(--bg);border-radius:3px;overflow:hidden;position:relative;">
+        <div style="width:${(g.have/g.need)*100}%;height:100%;background:rgba(30,155,224,.4);border-radius:3px;"></div>
+        <div style="position:absolute;right:4px;top:2px;font-size:11px;font-family:var(--font-mono);">${g.have}/${g.need}</div>
+      </div>
+      <span class="wf-badge rose">-${g.deficit}</span>
+    </div>
+  `).join('');
+}
+buildSkillsMatrix();
+
+function showMapPopover(e, city, people) {
+  e.stopPropagation();
+  const pop = document.getElementById('map-popover');
+  pop.innerHTML = `<div style="font-weight:600;margin-bottom:6px;">${city} · ${people.length} persona(s)</div>` +
+    people.map(p => `<div class="mono" style="font-size:12px;padding:2px 0;">${p}</div>`).join('') +
+    `<div style="margin-top:8px;border-top:1px dashed var(--border);padding-top:6px;"><a href="#" style="color:var(--accent);font-size:12px;">Ver en People →</a></div>`;
+  pop.classList.add('visible');
+  const rect = e.target.getBoundingClientRect();
+  const parentRect = e.target.parentElement.getBoundingClientRect();
+  pop.style.left = (rect.left - parentRect.left + rect.width/2) + 'px';
+  pop.style.top = (rect.top - parentRect.top - 10) + 'px';
+  pop.style.transform = 'translate(-50%, -100%)';
+}
+document.addEventListener('click', (e) => {
+  if (!e.target.classList.contains('map-marker')) {
+    const pop = document.getElementById('map-popover');
+    if (pop) pop.classList.remove('visible');
+  }
+});
+
+function openRejectDialog() { document.getElementById('reject-overlay').classList.add('open'); }
+function closeRejectDialog() { document.getElementById('reject-overlay').classList.remove('open'); }
+
+function goToPage(id) {
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  const navEl = document.querySelector(`.nav-item[data-page="${id}"]`);
+  if (navEl) navEl.classList.add('active');
+  const pg = document.getElementById('page-' + id);
+  if (pg) pg.classList.add('active');
+  document.getElementById('main').scrollTop = 0;
+}
+
+function showClient(id, el) {
+  document.querySelectorAll('.client-list-item').forEach(i => i.classList.remove('active'));
+  el.classList.add('active');
+  document.querySelectorAll('.client-panel').forEach(p => p.style.display = 'none');
+  document.getElementById('panel-' + id).style.display = '';
+}
+
+function toggleProjectView(view, tab) {
+  document.querySelectorAll('#page-projects .journal-tab').forEach(t => t.classList.remove('active'));
+  tab.classList.add('active');
+  document.getElementById('projects-kanban-view').style.display = view === 'kanban' ? '' : 'none';
+  document.getElementById('projects-table-view').style.display = view === 'table' ? '' : 'none';
+}
+
+function showSkillView(view, tab) {
+  document.querySelectorAll('#page-skills .journal-tab').forEach(t => t.classList.remove('active'));
+  tab.classList.add('active');
+  document.getElementById('skills-matrix-view').style.display = view === 'matrix' ? '' : 'none';
+  document.getElementById('skills-gap-view').style.display = view === 'gap' ? '' : 'none';
+}
+
+// --- TWEAKS ---
+function applySidebarTweak(val) {
+  TWEAK_DEFAULTS.sidebarStyle = val;
+  document.getElementById('sidebar').className = val === 'mini' ? 'sidebar mini' : 'sidebar';
+  postTweaks();
+}
+function applyScheduleTweak(val) {
+  TWEAK_DEFAULTS.scheduleInteraction = val;
+  postTweaks();
+}
+function postTweaks() {
+  window.parent.postMessage({type: '__edit_mode_set_keys', edits: TWEAK_DEFAULTS}, '*');
+}
+
+// Edit mode
+window.addEventListener('message', (e) => {
+  if (e.data?.type === '__activate_edit_mode') {
+    document.getElementById('tweaks-panel').classList.add('visible');
+  }
+  if (e.data?.type === '__deactivate_edit_mode') {
+    document.getElementById('tweaks-panel').classList.remove('visible');
+  }
+});
+window.parent.postMessage({type: '__edit_mode_available'}, '*');
+
+// Init tweaks from defaults
+document.getElementById('tweak-sidebar').value = TWEAK_DEFAULTS.sidebarStyle;
+document.getElementById('tweak-schedule').value = TWEAK_DEFAULTS.scheduleInteraction;
+if (TWEAK_DEFAULTS.sidebarStyle === 'mini') applySidebarTweak('mini');
+</script>
+</body>
+</html>
