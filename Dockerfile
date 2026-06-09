@@ -4,7 +4,7 @@
 # docker-compose.yml runs the app with DEV_USER set, which BYPASSES Authelia
 # and the trusted-proxy check entirely (every request is authenticated as that
 # user). Never deploy this image to a reachable network. Production uses systemd
-# behind nginx + Authelia (see DEPLOY.md).
+# behind nginx + Authelia.
 
 FROM python:3.12-slim AS builder
 ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1

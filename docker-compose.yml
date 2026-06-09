@@ -4,7 +4,7 @@
 # every request is authenticated as 'fer'. This is only safe because the port
 # is published on 127.0.0.1 of the host (loopback-only) — NOT reachable from
 # the LAN. Do not change the publish to "8000:8000" or add it to a public host.
-# Production is systemd + nginx + Authelia (see DEPLOY.md), never this file.
+# Production is systemd + nginx + Authelia, never this file.
 
 services:
   app:

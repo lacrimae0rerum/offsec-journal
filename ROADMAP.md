@@ -69,11 +69,9 @@
   - Trampa para futuros deploys que copien el Makefile
   - Effort: 5min
 
-- [x] **N0.3 Actualizar cifras de docs** _(2026-06-07, sin commit)_
-  - README línea 21 dice "97 tests pendiente migración" → reales: 176 ✅
-  - SECURITY.md línea 239 y MANUAL_TESTS.md línea 9 dicen "155 tests" → 176 ✅
-  - PLAN.md línea 197 dice "No hay rate limiting" → existe en `api/security/rate_limit.py` ✅ (marcado como histórico superado)
-  - README stack table no menciona el rate limiter ✅ (fila añadida)
+- [x] **N0.3 Actualizar cifras de docs** _(2026-06-07)_
+  - Corregidas cifras de tests desactualizadas en la documentación ✅
+  - Añadida la fila del rate limiter al stack del README ✅
   - Effort: 15min
 
 - [x] **N0.4 `.gitignore` ampliado** _(2026-06-08, sin commit)_
