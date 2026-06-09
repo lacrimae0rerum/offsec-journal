@@ -1,0 +1,1193 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Offensive Security Journal</title>
+  <link rel="stylesheet" href="styles.css?v=2026-04-27-toast">
+  <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
+  <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js" defer></script>
+</head>
+<body>
+
+<!-- ===================== SIDEBAR ===================== -->
+<nav class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <div class="sidebar-logo-box">OSJ</div>
+    <span class="sidebar-logo-text team-badge" id="team-badge" data-team="">—</span>
+  </div>
+  <div class="sidebar-title">Offensive Security Journal</div>
+  <div class="nav-item active" data-page="overview"><span class="nav-icon">◈</span><span class="nav-label">Overview</span></div>
+  <div class="nav-item" data-page="people"><span class="nav-icon">⊕</span><span class="nav-label">People</span></div>
+  <div class="nav-item" data-page="projects"><span class="nav-icon">▣</span><span class="nav-label">Projects</span></div>
+  <div class="nav-item" data-page="clients"><span class="nav-icon">◎</span><span class="nav-label">Clients</span></div>
+  <div class="nav-item" data-page="schedule"><span class="nav-icon">▦</span><span class="nav-label">Schedule</span></div>
+  <div class="nav-item" data-page="skills"><span class="nav-icon">◇</span><span class="nav-label">Skills</span></div>
+  <div class="nav-item" data-page="map"><span class="nav-icon">⊙</span><span class="nav-label">Map</span></div>
+  <div class="nav-item" data-page="journal"><span class="nav-icon">≡</span><span class="nav-label">Journal</span></div>
+  <div class="nav-item" data-page="chat"><span class="nav-icon">▷</span><span class="nav-label">Chat</span></div>
+  <div class="nav-item" data-page="search"><span class="nav-icon">⌕</span><span class="nav-label">Search</span></div>
+
+  <div class="sidebar-footer">
+    <div class="sidebar-user" id="sidebar-user">
+      <div class="sidebar-user-name" id="sidebar-user-name">—</div>
+      <div class="sidebar-user-role" id="sidebar-user-role"></div>
+    </div>
+    <a class="logout-btn" id="logout-link" href="#">Cerrar sesión</a>
+  </div>
+</nav>
+
+<!-- ===================== NO-ACCESS OVERLAY ===================== -->
+<div class="no-access-overlay hidden" id="no-access-overlay">
+  <div class="no-access-box">
+    <div class="no-access-icon">⊗</div>
+    <h2>Sin acceso</h2>
+    <p id="no-access-msg">
+      Tu cuenta está autenticada pero no tiene permisos en OffSec Journal.
+      Contacta al administrador del sistema.
+    </p>
+    <a class="btn primary" id="no-access-logout" href="#">Cerrar sesión</a>
+  </div>
+</div>
+
+<!-- ===================== MAIN ===================== -->
+<main class="main" id="main">
+
+  <!-- ========== OVERVIEW ========== -->
+  <section class="page active" id="page-overview">
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Overview</h1>
+        <p class="page-sub">Estado del equipo esta semana</p>
+      </div>
+    </div>
+
+    <div class="wf-row">
+      <div class="wf-card wf-kpi"><div class="wf-kpi-val" id="kpi-people">—</div><div class="wf-kpi-label">Personas</div></div>
+      <div class="wf-card wf-kpi"><div class="wf-kpi-val" id="kpi-projects-active">—</div><div class="wf-kpi-label">Proyectos activos</div></div>
+      <div class="wf-card wf-kpi"><div class="wf-kpi-val" id="kpi-projects-pipeline">—</div><div class="wf-kpi-label">Pipeline</div></div>
+      <div class="wf-card wf-kpi"><div class="wf-kpi-val" id="kpi-coherence-warnings">—</div><div class="wf-kpi-label">Coherence warnings</div></div>
+      <div class="wf-card wf-kpi"><div class="wf-kpi-val" id="kpi-avg-load">—</div><div class="wf-kpi-label">Carga media</div></div>
+    </div>
+
+    <div class="wf-row">
+      <div class="wf-card" style="flex:2;min-width:420px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:10px;">
+          <div class="wf-card-title" style="margin:0;">Heatmap de dedicación</div>
+          <div id="overview-range-btns" style="display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end;"></div>
+        </div>
+        <div id="overview-heatmap"></div>
+      </div>
+      <div class="wf-card" style="flex:1;min-width:240px;">
+        <div class="wf-card-title">Top skill gaps (pipeline)</div>
+        <div id="overview-gaps" style="display:flex;flex-direction:column;gap:10px;margin-top:4px;"></div>
+      </div>
+    </div>
+
+    <div class="wf-card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+        <div class="wf-card-title" style="margin:0;">Coherence warnings <span class="text-warn" id="overview-warnings-count">(0)</span></div>
+        <span class="text-muted small">global_level ↔ skills</span>
+      </div>
+      <div id="overview-warnings" style="display:flex;flex-direction:column;gap:10px;"></div>
+    </div>
+
+    <div class="wf-card">
+      <div class="wf-card-title">Últimas entradas del journal</div>
+      <div id="overview-journal" style="display:flex;flex-direction:column;gap:8px;margin-top:4px;"></div>
+    </div>
+  </section>
+
+  <!-- ========== PEOPLE ========== -->
+  <section class="page" id="page-people">
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">People</h1>
+        <p class="page-sub">Equipo ofensivo — click en fila para detalle</p>
+      </div>
+      <button class="btn primary" onclick="openNewPersonModal()">+ Nueva persona</button>
+    </div>
+
+    <div class="wf-row" style="margin-bottom:14px;">
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <select class="tweak-select" id="people-filter-office">
+          <option value="">Todas las oficinas</option>
+        </select>
+        <select class="tweak-select" id="people-filter-level">
+          <option value="">Todos los niveles</option>
+          <option value="junior">junior</option>
+          <option value="intermediate">intermediate</option>
+          <option value="senior">senior</option>
+          <option value="master">master</option>
+        </select>
+        <input class="form-input mono" id="people-filter-skill" placeholder="skill_id (ej: osint)" style="font-size:13px;padding:5px 10px;width:200px;">
+      </div>
+    </div>
+
+    <div class="wf-card" style="padding:0;overflow:hidden;">
+      <table class="wf-table">
+        <thead>
+          <tr><th>ID</th><th>Nombre</th><th>Oficina</th><th>Nivel</th><th>Carga sem.</th><th>⚠</th></tr>
+        </thead>
+        <tbody id="people-tbody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ========== PERSON DETAIL ========== -->
+  <section class="page" id="page-person-detail">
+    <div class="page-breadcrumb">
+      <a href="#" onclick="goToPage('people');return false;">← People</a>
+      <span class="mono" id="person-detail-path">/people/—</span>
+    </div>
+    <div class="page-header">
+      <div>
+        <h1 class="page-title" id="person-detail-name">—</h1>
+        <div class="page-sub" id="person-detail-meta"></div>
+      </div>
+      <button class="btn" onclick="openEditPerson(state._currentPerson || (state.drawerPerson && state.drawerPerson.id) || '')">Editar persona</button>
+    </div>
+
+    <div class="wf-row">
+      <div class="wf-card" style="flex:1;min-width:280px;">
+        <div class="wf-card-title">Skills (radar)</div>
+        <div id="person-detail-radar" style="display:flex;justify-content:center;"></div>
+        <div class="text-muted small center" style="margin-top:6px;font-family:var(--font-mono);font-size:10px;">escala 0 → L5</div>
+      </div>
+      <div class="wf-card" style="flex:2;min-width:360px;">
+        <div class="wf-card-title">Skills detalle</div>
+        <table class="wf-table">
+          <thead><tr><th>Skill</th><th>Nivel</th><th>Last used</th><th>Growth</th></tr></thead>
+          <tbody id="person-detail-skills"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="wf-row">
+      <div class="wf-card" style="flex:1;min-width:280px;">
+        <div class="wf-card-title">Assignments activos</div>
+        <table class="wf-table">
+          <thead><tr><th>Proyecto</th><th>Rol</th><th>%</th><th>Ventana</th><th></th></tr></thead>
+          <tbody id="person-detail-assignments"></tbody>
+        </table>
+      </div>
+      <div class="wf-card" style="flex:1;min-width:280px;">
+        <div class="wf-card-title">Coherence</div>
+        <div id="person-detail-coherence"></div>
+      </div>
+    </div>
+
+    <div class="wf-card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+        <div class="wf-card-title" style="margin:0;">Disponibilidad (4 próximas semanas)</div>
+        <button class="btn small" onclick="openNewAvailModal()">+ PTO / training</button>
+      </div>
+      <table class="wf-table">
+        <thead><tr><th>Tipo</th><th>Ventana</th><th>%</th><th>Motivo</th><th>Status</th></tr></thead>
+        <tbody id="person-detail-avail"></tbody>
+      </table>
+    </div>
+
+    <div class="wf-card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+        <div class="wf-card-title" style="margin:0;">Notas — notes/persons/fer.md</div>
+        <div class="small text-muted" id="person-detail-notes-page">pág 1/3</div>
+      </div>
+      <div id="person-detail-notes"></div>
+      <div style="margin-top:16px;border-top:1px dashed var(--border);padding-top:12px;">
+        <textarea class="form-textarea" id="person-notes-textarea" placeholder="Añadir nota... (tags se añaden en el campo de abajo)"></textarea>
+        <div style="display:flex;gap:8px;margin-top:6px;align-items:center;">
+          <input class="form-input mono" id="person-notes-tags" placeholder="tags: mentoring,cti" style="flex:1;font-size:13px;padding:6px 10px;">
+          <button class="chat-send" id="person-notes-submit" style="margin:0;">Añadir nota</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== PROJECTS ========== -->
+  <section class="page" id="page-projects">
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Projects</h1>
+        <p class="page-sub">Pipeline → Activos → Cerrados</p>
+      </div>
+      <button class="btn primary" onclick="openNewProjectModal()">+ Nuevo proyecto</button>
+    </div>
+
+    <div class="tabs" id="projects-tabs">
+      <div class="tab active" data-view="kanban">Kanban</div>
+      <div class="tab" data-view="table">Tabla</div>
+    </div>
+
+    <div id="projects-kanban-view" class="kanban"></div>
+
+    <div id="projects-table-view" class="wf-card" style="display:none;padding:0;overflow:hidden;">
+      <table class="wf-table">
+        <thead><tr><th>Código</th><th>Tipo</th><th>Cliente</th><th>Ventana</th><th>Status</th><th>Cobertura</th><th>Asignados</th></tr></thead>
+        <tbody id="projects-tbody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ========== PROJECT DETAIL ========== -->
+  <section class="page" id="page-project-detail">
+    <div class="page-breadcrumb">
+      <a href="#" onclick="goToPage('projects');return false;">← Projects</a>
+      <span class="mono" id="project-detail-breadcrumb">/projects/—</span>
+    </div>
+    <div class="page-header">
+      <div>
+        <h1 class="page-title" id="project-detail-title"><span class="mono">—</span></h1>
+        <div class="page-sub" id="project-detail-sub">—</div>
+      </div>
+      <button class="btn" id="project-detail-edit-btn">Editar proyecto</button>
+    </div>
+
+    <div class="wf-row">
+      <div class="wf-card" style="flex:2;min-width:400px;">
+        <div class="wf-card-title">Required skills vs equipo</div>
+        <table class="wf-table">
+          <thead><tr><th>Skill</th><th>Weight</th><th>Min level</th><th>Mejor match</th><th>Gap</th></tr></thead>
+          <tbody id="project-detail-reqskills-body"></tbody>
+        </table>
+        <div style="margin-top:12px;display:flex;align-items:center;gap:10px;" id="project-detail-coverage">
+          <span class="text-muted small">Cobertura:</span>
+          <div class="coverage-bar"><div class="coverage-bar-fill" id="project-detail-coverage-fill" style="width:0%;"></div></div>
+          <span class="wf-badge gray" id="project-detail-coverage-badge">—</span>
+        </div>
+      </div>
+      <div class="wf-card" style="flex:1;min-width:240px;">
+        <div class="wf-card-title">Assignments actuales</div>
+        <div id="project-detail-assignments"></div>
+        <button class="chat-send" id="proj-propose-assign" style="margin-top:12px;width:100%;">+ Proponer assignment</button>
+        <button class="btn small danger" id="proj-archive-btn" style="margin-top:8px;width:100%;">Archivar proyecto</button>
+      </div>
+    </div>
+
+    <div class="wf-card">
+      <div class="wf-card-title">Timeline</div>
+      <div class="timeline-wrap" id="project-detail-timeline">
+        <div class="timeline-weeks"><span class="text-muted small">—</span></div>
+        <div class="timeline-axis"></div>
+        <div class="timeline-bar text-muted small">Sin ventana definida</div>
+      </div>
+    </div>
+
+    <div class="wf-card">
+      <div class="wf-card-title">Notas — <span class="mono" id="project-detail-notes-path">notes/projects/PT-2026-018.md</span></div>
+      <div id="project-detail-notes"><div class="text-muted small">Cargando…</div></div>
+      <div style="margin-top:16px;border-top:1px dashed var(--border);padding-top:12px;">
+        <textarea class="form-textarea" id="project-notes-textarea" placeholder="Añadir nota al proyecto..."></textarea>
+        <div style="display:flex;gap:8px;margin-top:6px;align-items:center;">
+          <input class="form-input mono" id="project-notes-tags" placeholder="tags: scoping,aws" style="flex:1;font-size:13px;padding:6px 10px;">
+          <button class="chat-send" id="project-notes-submit" style="margin:0;">Añadir nota</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== CLIENTS ========== -->
+  <section class="page" id="page-clients">
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Clients</h1>
+        <p class="page-sub">Directorio de clientes — proyectos, contactos y notas</p>
+      </div>
+      <button class="btn primary" onclick="openModal('new-client-modal')">+ Nuevo cliente</button>
+    </div>
+
+    <div style="display:flex;gap:16px;align-items:flex-start;">
+      <aside style="width:260px;flex-shrink:0;">
+        <input type="text" class="form-input" placeholder="Buscar cliente..." style="margin-bottom:10px;">
+        <div id="clients-list"></div>
+        <button class="btn small" style="width:100%;margin-top:8px;" onclick="openModal('new-client-modal')">+ Nuevo cliente</button>
+      </aside>
+      <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:14px;" id="client-detail"></div>
+    </div>
+  </section>
+
+  <!-- ========== SCHEDULE ========== -->
+  <section class="page" id="page-schedule">
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Schedule</h1>
+        <p class="page-sub">Heatmap dedicación por persona × semana — hover para breakdown, click para detalle</p>
+      </div>
+    </div>
+
+    <div class="wf-row" style="margin-bottom:8px;align-items:center;gap:10px;">
+      <span class="small text-muted">Rango:</span>
+      <input type="week" value="2026-W15" class="tweak-select" id="sched-start" style="padding:5px 10px;">
+      <span class="small text-muted">→</span>
+      <input type="week" value="2026-W18" class="tweak-select" id="sched-end" style="padding:5px 10px;">
+      <button class="btn small" id="sched-apply">Aplicar</button>
+      <span class="small text-muted" style="margin-left:8px;" id="sched-week-count">· 4 semanas</span>
+    </div>
+
+    <div class="wf-card" style="overflow-x:auto;position:relative;padding-top:20px;" id="schedule-card">
+      <div id="schedule-heatmap"></div>
+    </div>
+
+    <div style="display:flex;gap:12px;margin-top:14px;font-size:12px;color:var(--text2);align-items:center;flex-wrap:wrap;">
+      <span>Leyenda:</span>
+      <span style="display:inline-flex;align-items:center;gap:5px;"><span style="width:16px;height:16px;border-radius:3px;background:rgba(30,155,224,0.04);border:1px solid rgba(30,155,224,0.15);"></span> 0%</span>
+      <span style="display:inline-flex;align-items:center;gap:5px;"><span style="width:16px;height:16px;border-radius:3px;background:rgba(30,155,224,0.20);"></span> 1-20%</span>
+      <span style="display:inline-flex;align-items:center;gap:5px;"><span style="width:16px;height:16px;border-radius:3px;background:rgba(30,155,224,0.38);"></span> 21-40%</span>
+      <span style="display:inline-flex;align-items:center;gap:5px;"><span style="width:16px;height:16px;border-radius:3px;background:rgba(30,155,224,0.58);"></span> 41-60%</span>
+      <span style="display:inline-flex;align-items:center;gap:5px;"><span style="width:16px;height:16px;border-radius:3px;background:rgba(30,155,224,0.80);"></span> 61-80%</span>
+      <span style="display:inline-flex;align-items:center;gap:5px;"><span style="width:16px;height:16px;border-radius:3px;background:rgba(240,184,48,0.62);"></span> 81-100%</span>
+      <span style="display:inline-flex;align-items:center;gap:5px;"><span style="width:16px;height:16px;border-radius:3px;background:rgba(240,96,112,0.78);"></span> >100% ⚠</span>
+    </div>
+  </section>
+
+  <!-- ========== SKILLS ========== -->
+  <section class="page" id="page-skills">
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Skills</h1>
+        <p class="page-sub">Matriz equipo × skills — toggle entre niveles y gap analysis</p>
+      </div>
+      <button class="btn primary" onclick="openModal('new-catalog-skill-modal')">+ Nueva skill</button>
+    </div>
+
+    <div class="tabs" id="skills-tabs">
+      <div class="tab active" data-view="matrix">Matriz de niveles</div>
+      <div class="tab" data-view="gap">Skill gap (pipeline)</div>
+    </div>
+
+    <div id="skills-matrix-view" class="wf-card skills-matrix">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px;">
+        <div class="wf-card-title" style="margin:0;">Niveles por persona (columnas = skills del catálogo)</div>
+        <div class="small text-muted">En la cabecera: ✎ edita label/desc · ✕ archiva</div>
+      </div>
+      <table>
+        <thead>
+          <tr id="skills-matrix-head">
+            <th class="row-header"></th>
+            <th data-skill="hacking_web">web <span class="skh-edit" title="editar label/desc">✎</span> <span class="skh-arch" title="archivar">✕</span></th>
+            <th data-skill="hacking_active_directory">ad <span class="skh-edit" title="editar label/desc">✎</span> <span class="skh-arch" title="archivar">✕</span></th>
+            <th data-skill="osint">osint <span class="skh-edit" title="editar label/desc">✎</span> <span class="skh-arch" title="archivar">✕</span></th>
+            <th data-skill="escalada_privilegios">priv <span class="skh-edit" title="editar label/desc">✎</span> <span class="skh-arch" title="archivar">✕</span></th>
+            <th data-skill="pivoting_movimiento_lateral">pivot <span class="skh-edit" title="editar label/desc">✎</span> <span class="skh-arch" title="archivar">✕</span></th>
+            <th data-skill="hacking_cloud">cloud <span class="skh-edit" title="editar label/desc">✎</span> <span class="skh-arch" title="archivar">✕</span></th>
+            <th data-skill="reporting">report <span class="skh-edit" title="editar label/desc">✎</span> <span class="skh-arch" title="archivar">✕</span></th>
+            <th data-skill="automatizacion_tooling">auto <span class="skh-edit" title="editar label/desc">✎</span> <span class="skh-arch" title="archivar">✕</span></th>
+            <th data-skill="phishing">phish <span class="skh-edit" title="editar label/desc">✎</span> <span class="skh-arch" title="archivar">✕</span></th>
+            <th data-skill="evasion_defensas">evas <span class="skh-edit" title="editar label/desc">✎</span> <span class="skh-arch" title="archivar">✕</span></th>
+          </tr>
+        </thead>
+        <tbody id="skills-tbody"></tbody>
+      </table>
+    </div>
+
+    <div id="skills-gap-view" class="wf-card" style="display:none;">
+      <div class="wf-card-title">Skills requeridas por pipeline vs disponibles</div>
+      <div id="gap-bars" style="display:flex;flex-direction:column;gap:10px;margin-top:12px;"></div>
+    </div>
+  </section>
+
+  <!-- ========== MAP ========== -->
+  <section class="page" id="page-map">
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Map</h1>
+        <p class="page-sub">Distribución geográfica por oficina</p>
+      </div>
+    </div>
+
+    <div class="map-container">
+      <div id="maplibre" style="width:100%;height:100%;"></div>
+    </div>
+  </section>
+
+  <!-- ========== JOURNAL ========== -->
+  <section class="page" id="page-journal">
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Journal</h1>
+        <p class="page-sub">Inbox de propuestas — aplica o rechaza</p>
+      </div>
+    </div>
+
+    <div class="tabs" id="journal-tabs">
+      <div class="tab active" data-filter="pending">Pending <span class="wf-badge amber" style="margin-left:6px;">1</span></div>
+      <div class="tab" data-filter="applied">Applied</div>
+      <div class="tab" data-filter="rejected">Rejected</div>
+    </div>
+
+    <div id="journal-entries"></div>
+  </section>
+
+  <!-- ========== CHAT ========== -->
+  <section class="page" id="page-chat">
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Chat</h1>
+        <p class="page-sub">Consulta al asistente — propuestas van al Journal</p>
+      </div>
+      <span class="wf-badge amber" title="Vista no funcional todavía. El bloque inferior es maqueta de cómo se verá.">vista de demo</span>
+    </div>
+
+    <div class="chat-layout">
+      <div class="chat-main">
+        <div class="chat-messages" id="chat-messages">
+          <div class="chat-flow-label">demo · 3 flows típicos</div>
+          <div class="chat-msg user">¿Dónde me falta gente para el pipeline?</div>
+          <div class="chat-msg assistant">
+            <div class="chat-msg-tool">⚡ skill_gap(pipeline)</div>
+            Pipeline pide 3 proyectos. Ordenado por weight:<br>
+            1. <strong>hacking_cloud</strong> (weight 3, PT-2026-018) — falta 1 nivel, mejor fer L2.<br>
+            2. <strong>evasion_defensas</strong> (weight 3, RT-2026-005) — sin cobertura.<br>
+            3. <strong>escalada_privilegios</strong> (weight 2, PT-2026-018) — ✓ santi L4.<br><br>
+            Prioridad: contratar o formar en <strong>cloud + evasion</strong>.
+          </div>
+          <div class="chat-msg user">¿Quién tiene nivel ≥3 en hacking_active_directory y está libre la semana 17?</div>
+          <div class="chat-msg assistant">
+            <div class="chat-msg-tool">⚡ find_people + who_is_free</div>
+            <strong>fer</strong> (Madrid, L4 en hacking_ad) — libre 20% semana 17.<br>
+            <strong>santi</strong> (Madrid, L4) — asignado 100%, no disponible.<br>
+            <strong>tbd_02</strong> (Barcelona, L3) — libre 50%.<br><br>
+            Recomendaría <strong>fer</strong> si puede asumir un 20% más, o <strong>tbd_02</strong> como executor con supervisión.
+          </div>
+          <div class="chat-msg user">Mete a tbd_02 al 50% en PT-2026-018 desde el lunes como executor</div>
+          <div class="chat-msg assistant">
+            <div class="chat-msg-tool">⚡ propose_assignment</div>
+            Propuesta registrada en el journal<span class="streaming-cursor"></span>
+            <div class="chat-msg-jref">📋 <a href="#" onclick="goToPage('journal');return false;">Ver en Journal →</a> entry 01HYXZ...</div>
+          </div>
+        </div>
+        <div class="chat-input-bar">
+          <input class="chat-input" placeholder="Pregunta al asistente...">
+          <button class="chat-send">Enviar</button>
+        </div>
+      </div>
+      <div class="chat-panel">
+        <div class="wf-card-title">Tool calls</div>
+        <div class="tool-card">
+          <div class="tool-card-header">find_people</div>
+          <div class="tool-card-args">skill=hacking_ad, min_level=3</div>
+          <div class="tool-card-result">→ fer (L4), santi (L4), tbd_02 (L3)</div>
+        </div>
+        <div class="tool-card">
+          <div class="tool-card-header">who_is_free</div>
+          <div class="tool-card-args">week=2026-W17, min_pct=50</div>
+          <div class="tool-card-result">→ fer 20%, tbd_02 50%, tbd_04 70%</div>
+        </div>
+        <div class="tool-card">
+          <div class="tool-card-header">propose_assignment</div>
+          <div class="tool-card-args">tbd_02, PT-2026-018, 50%, executor</div>
+          <div class="tool-card-result text-accent">→ journal entry 01HYXZ... pending</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== SEARCH ========== -->
+  <section class="page" id="page-search">
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Search</h1>
+        <p class="page-sub">Búsqueda full-text en personas, proyectos y notas</p>
+      </div>
+    </div>
+
+    <div class="search-bar">
+      <input class="search-input" id="search-input" value="" placeholder="Busca en personas, proyectos, notas...">
+    </div>
+
+    <div style="display:flex;gap:22px;align-items:flex-start;">
+      <aside style="width:240px;flex-shrink:0;">
+        <div class="wf-card" style="padding:14px 16px;" id="search-filters">
+          <div class="mono text-muted xsmall" style="margin-bottom:10px;">filtros</div>
+          <div class="small text-muted" style="margin-bottom:4px;">Tipo</div>
+          <label style="display:block;font-size:13px;padding:3px 0;"><input type="checkbox" class="search-type" value="people" checked> personas</label>
+          <label style="display:block;font-size:13px;padding:3px 0;"><input type="checkbox" class="search-type" value="projects" checked> proyectos</label>
+          <label style="display:block;font-size:13px;padding:3px 0;"><input type="checkbox" class="search-type" value="notes" checked> notas</label>
+          <label style="display:block;font-size:13px;padding:3px 0;color:var(--text2);" title="Sin backend de búsqueda todavía"><input type="checkbox" disabled> skills</label>
+          <label style="display:block;font-size:13px;padding:3px 0;color:var(--text2);" title="Sin backend de búsqueda todavía"><input type="checkbox" disabled> journal</label>
+
+          <div class="small text-muted" style="margin:14px 0 4px;">Rango fechas (notas)</div>
+          <input type="date" id="search-date-from" class="tweak-select" style="width:100%;padding:5px 8px;margin-bottom:4px;" aria-label="Fecha desde">
+          <input type="date" id="search-date-to" class="tweak-select" style="width:100%;padding:5px 8px;" aria-label="Fecha hasta">
+
+          <div class="small text-muted" style="margin:14px 0 6px;">Tags notas</div>
+          <div id="search-tags">
+            <span class="wf-badge search-tag" data-tag="cloud" style="cursor:pointer;margin:2px 4px 2px 0;display:inline-block;">cloud</span>
+            <span class="wf-badge search-tag" data-tag="mentoring" style="cursor:pointer;margin:2px 4px 2px 0;display:inline-block;">mentoring</span>
+            <span class="wf-badge search-tag" data-tag="cti" style="cursor:pointer;margin:2px 4px 2px 0;display:inline-block;">cti</span>
+            <span class="wf-badge search-tag" data-tag="pto" style="cursor:pointer;margin:2px 4px 2px 0;display:inline-block;">pto</span>
+            <span class="wf-badge search-tag" data-tag="aws" style="cursor:pointer;margin:2px 4px 2px 0;display:inline-block;">aws</span>
+          </div>
+
+          <button class="btn" id="search-clear" style="width:100%;margin-top:14px;padding:6px;font-size:12px;">Limpiar filtros</button>
+        </div>
+      </aside>
+
+      <div id="search-results" style="flex:1;min-width:0;">
+        <div class="wf-placeholder" style="min-height:80px;">Escribe algo arriba para buscar en personas, proyectos y notas.</div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ===================== DRAWER (Person) ===================== -->
+<div class="drawer-overlay" id="drawer-overlay" onclick="closeDrawer()">
+  <div class="drawer" id="drawer-panel" onclick="event.stopPropagation()">
+    <button class="drawer-close" onclick="closeDrawer()">✕</button>
+    <h2 class="page-title" style="font-size:22px;margin-bottom:2px;" id="drawer-name">—</h2>
+    <div class="mono" id="drawer-id">—</div>
+    <div class="small text-muted mt-sm" id="drawer-meta">—</div>
+    <div style="margin-top:10px;"><a href="#" id="drawer-fullpage">→ Ver página completa</a></div>
+
+    <div class="wf-card mt-md">
+      <div class="wf-card-title">Skills</div>
+      <div id="drawer-radar" style="display:flex;justify-content:center;"></div>
+      <div id="drawer-skills" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:12px;"></div>
+    </div>
+
+    <div class="wf-card mt-md">
+      <div class="wf-card-title">Assignments activos</div>
+      <div id="drawer-assignments" style="font-size:14px;display:flex;flex-direction:column;gap:6px;"></div>
+    </div>
+
+    <div class="wf-card mt-md">
+      <div class="wf-card-title">Notas recientes</div>
+      <div id="drawer-notes" class="small text-muted" style="line-height:1.6;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== REJECT DIALOG ===================== -->
+<div class="modal-overlay" id="reject-modal">
+  <div class="modal sm" onclick="event.stopPropagation()">
+    <button class="modal-close" onclick="closeModal('reject-modal')">✕</button>
+    <div class="modal-title">Rechazar propuesta</div>
+    <div class="modal-sub mono" id="reject-subject">skill_update · tbd_01.hacking_web L3 → L4 · 01HYXZ...</div>
+    <div class="small text-muted mb-sm">Razón (obligatoria)</div>
+    <textarea class="form-textarea" placeholder="Ej: pendiente de confirmar con PM de PT-2026-012; revisar en 1 mes." style="min-height:80px;"></textarea>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal('reject-modal')">Cancelar</button>
+      <button class="btn danger" onclick="confirmReject()">Confirmar rechazo</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== NEW PROJECT MODAL ===================== -->
+<div class="modal-overlay" id="new-project-modal">
+  <div class="modal" onclick="event.stopPropagation()">
+    <button class="modal-close" onclick="closeModal('new-project-modal')">✕</button>
+    <div class="modal-title">Nuevo proyecto</div>
+    <div class="modal-sub">Se creará como entry <span class="mono">pending</span> en el journal. Aplicar después en <a href="#" onclick="closeModal('new-project-modal');goToPage('journal');return false;">/journal</a>.</div>
+
+    <div class="form-grid">
+      <div>
+        <div class="form-label">Código *</div>
+        <input class="form-input mono" id="npr-code" placeholder="PT-2026-020">
+      </div>
+      <div>
+        <div class="form-label">Tipo *</div>
+        <select class="form-select" id="npr-type">
+          <option>pentest_web</option><option>pentest_infra</option><option>red_team</option>
+          <option>purple_team</option><option>cti_retainer</option><option>research</option><option>internal</option>
+        </select>
+      </div>
+      <div>
+        <div class="form-label">Cliente *</div>
+        <select class="form-select" id="npr-client"></select>
+      </div>
+      <div>
+        <div class="form-label">Status</div>
+        <select class="form-select" id="npr-status"><option>pipeline</option><option>active</option></select>
+      </div>
+      <div>
+        <div class="form-label">Inicio *</div>
+        <input class="form-input mono" id="npr-start" type="date" value="2026-05-12">
+      </div>
+      <div>
+        <div class="form-label">Fin *</div>
+        <input class="form-input mono" id="npr-end" type="date" value="2026-06-06">
+      </div>
+      <div class="full">
+        <div class="form-label">Horas estimadas</div>
+        <input class="form-input mono" id="npr-hours" type="number" min="0" step="1" value="0">
+      </div>
+      <div class="full">
+        <div class="form-label">Skills requeridos</div>
+        <div id="npr-skills-rows" style="display:flex;flex-direction:column;gap:8px;margin-bottom:8px;"></div>
+        <button type="button" class="btn small" id="npr-skills-add">+ Añadir skill</button>
+      </div>
+    </div>
+
+    <div class="journal-preview">
+      <div class="journal-preview-label">→ journal entry generado</div>
+      <div class="journal-preview-val">op: project_create · proposer: human · status: pending → applied</div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal('new-project-modal')">Cancelar</button>
+      <button class="btn primary" id="npr-submit">Crear y aplicar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== NEW AVAILABILITY MODAL ===================== -->
+<div class="modal-overlay" id="new-avail-modal">
+  <div class="modal sm" onclick="event.stopPropagation()">
+    <button class="modal-close" onclick="closeModal('new-avail-modal')">✕</button>
+    <div class="modal-title">Nueva disponibilidad</div>
+    <div class="modal-sub">Persona: <span class="mono text-accent" id="nav-person-display">—</span> · se creará como entry <span class="mono">pending → applied</span>.</div>
+
+    <div class="form-grid">
+      <div>
+        <div class="form-label">Tipo *</div>
+        <select class="form-select" id="nav-kind">
+          <option value="pto">pto</option>
+          <option value="training">training</option>
+          <option value="sick">sick</option>
+          <option value="overhead">overhead</option>
+          <option value="hold">hold</option>
+        </select>
+      </div>
+      <div>
+        <div class="form-label">% impacto</div>
+        <select class="form-select" id="nav-pct">
+          <option value="100">100</option>
+          <option value="75">75</option>
+          <option value="50">50</option>
+          <option value="25">25</option>
+        </select>
+      </div>
+      <div>
+        <div class="form-label">Inicio *</div>
+        <input class="form-input mono" id="nav-start" type="date">
+      </div>
+      <div>
+        <div class="form-label">Fin *</div>
+        <input class="form-input mono" id="nav-end" type="date">
+      </div>
+      <div class="full">
+        <div class="form-label">Motivo / nota</div>
+        <input class="form-input" id="nav-reason" placeholder="HTB Cloud course">
+      </div>
+    </div>
+
+    <div class="journal-preview">
+      <div class="journal-preview-label">→ journal entry generado</div>
+      <div class="journal-preview-val">op: availability · proposer: human · status: pending → applied</div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal('new-avail-modal')">Cancelar</button>
+      <button class="btn primary" id="nav-submit">Crear y aplicar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== NEW PERSON MODAL ===================== -->
+<div class="modal-overlay" id="new-person-modal">
+  <div class="modal sm" onclick="event.stopPropagation()">
+    <button class="modal-close" onclick="closeModal('new-person-modal')">✕</button>
+    <div class="modal-title">Nueva persona</div>
+    <div class="modal-sub">Se creará como entry <span class="mono">pending</span> en el journal.</div>
+
+    <div class="form-grid">
+      <div>
+        <div class="form-label">ID (alias) *</div>
+        <input class="form-input mono" id="npe-id" placeholder="tbd_06">
+      </div>
+      <div>
+        <div class="form-label">Nombre *</div>
+        <input class="form-input" id="npe-name" placeholder="Nombre completo">
+      </div>
+      <div>
+        <div class="form-label">Oficina</div>
+        <select class="form-select" id="npe-office"><option>madrid</option><option>barcelona</option><option>lisboa</option><option>remote</option></select>
+      </div>
+      <div>
+        <div class="form-label">Nivel global</div>
+        <select class="form-select" id="npe-level"><option>junior</option><option>intermediate</option><option>senior</option><option>master</option></select>
+      </div>
+      <div>
+        <div class="form-label">FTE</div>
+        <input class="form-input mono" id="npe-fte" type="number" min="0" max="1" step="0.1" value="1.0">
+      </div>
+      <div>
+        <div class="form-label">Start date *</div>
+        <input class="form-input mono" id="npe-start" type="date" value="2026-05-01">
+      </div>
+    </div>
+
+    <div class="journal-preview">
+      <div class="journal-preview-label">→ journal entry generado</div>
+      <div class="journal-preview-val">op: person_create · proposer: human · status: pending → applied</div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal('new-person-modal')">Cancelar</button>
+      <button class="btn primary" id="npe-submit">Crear y aplicar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== NEW CLIENT MODAL ===================== -->
+<div class="modal-overlay" id="new-client-modal">
+  <div class="modal sm" onclick="event.stopPropagation()">
+    <button class="modal-close" onclick="closeModal('new-client-modal')">✕</button>
+    <div class="modal-title">Nuevo cliente</div>
+    <div class="modal-sub">Se creará como entry <span class="mono">pending</span> en el journal.</div>
+
+    <div class="form-grid">
+      <div>
+        <div class="form-label">ID (alias) *</div>
+        <input class="form-input mono" id="nc-id" placeholder="alfa">
+      </div>
+      <div>
+        <div class="form-label">Nombre *</div>
+        <input class="form-input" id="nc-name" placeholder="Cliente Alfa">
+      </div>
+      <div>
+        <div class="form-label">Sector</div>
+        <input class="form-input" id="nc-sector" placeholder="Banca / Retail / Energía…">
+      </div>
+      <div>
+        <div class="form-label">Tamaño</div>
+        <select class="form-select" id="nc-size">
+          <option value="">—</option><option>SMB</option><option>Mid-market</option><option>Enterprise</option>
+        </select>
+      </div>
+      <div>
+        <div class="form-label">País (ISO-2)</div>
+        <input class="form-input mono" id="nc-country" placeholder="ES" maxlength="2">
+      </div>
+      <div></div>
+      <div class="full">
+        <div class="form-label">Descripción</div>
+        <textarea class="form-textarea" id="nc-desc" placeholder="Contexto, relación, particularidades…"></textarea>
+      </div>
+    </div>
+
+    <div class="journal-preview">
+      <div class="journal-preview-label">→ journal entry generado</div>
+      <div class="journal-preview-val">op: client_create · proposer: human · status: pending</div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal('new-client-modal')">Cancelar</button>
+      <button class="btn primary" id="nc-submit">Crear entry</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== PROPOSE ASSIGNMENT MODAL ===================== -->
+<div class="modal-overlay" id="propose-assign-modal">
+  <div class="modal sm" onclick="event.stopPropagation()">
+    <button class="modal-close" onclick="closeModal('propose-assign-modal')">✕</button>
+    <div class="modal-title">Proponer assignment</div>
+    <div class="modal-sub">Proyecto: <span class="mono text-accent" id="pa-project">—</span> · crea entry <span class="mono">pending</span>.</div>
+
+    <div class="form-grid">
+      <div>
+        <div class="form-label">Persona *</div>
+        <select class="form-select" id="pa-person"></select>
+      </div>
+      <div>
+        <div class="form-label">Rol *</div>
+        <select class="form-select" id="pa-role">
+          <option>executor</option><option>lead</option><option>reviewer</option><option>shadow</option>
+        </select>
+      </div>
+      <div>
+        <div class="form-label">Dedicación % *</div>
+        <input class="form-input mono" id="pa-pct" type="number" min="0" max="200" value="50">
+      </div>
+      <div></div>
+      <div>
+        <div class="form-label">Inicio *</div>
+        <input class="form-input mono" id="pa-start" type="date">
+      </div>
+      <div>
+        <div class="form-label">Fin *</div>
+        <input class="form-input mono" id="pa-end" type="date">
+      </div>
+    </div>
+
+    <div class="journal-preview">
+      <div class="journal-preview-label">→ journal entry generado</div>
+      <div class="journal-preview-val">op: assign · proposer: human · status: pending</div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal('propose-assign-modal')">Cancelar</button>
+      <button class="btn primary" id="pa-submit">Crear entry</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== ARCHIVE CONFIRM MODAL ===================== -->
+<div class="modal-overlay" id="archive-modal">
+  <div class="modal sm" onclick="event.stopPropagation()">
+    <button class="modal-close" onclick="closeModal('archive-modal')">✕</button>
+    <div class="modal-title">Archivar <span id="ac-entity-type">entidad</span></div>
+    <div class="modal-sub">
+      <span class="mono text-accent" id="ac-entity-id">—</span> será marcado como <span class="mono">archived: true</span>.
+      Nada se borra; se puede desarchivar reenviando el mismo kind con <span class="mono">archived: false</span>.
+    </div>
+    <div class="warn-box" style="margin-top:10px;">
+      <span class="wf-badge amber" style="flex-shrink:0;">pending</span>
+      <div class="small">Pasa por el journal como cualquier mutación. Después de crear, aplica desde <a href="#" onclick="closeModal('archive-modal');goToPage('journal');return false;">/journal</a>.</div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal('archive-modal')">Cancelar</button>
+      <button class="btn danger" id="ac-submit">Crear entry de archivo</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== UNASSIGN CONFIRM MODAL ===================== -->
+<div class="modal-overlay" id="unassign-modal">
+  <div class="modal sm" onclick="event.stopPropagation()">
+    <button class="modal-close" onclick="closeModal('unassign-modal')">✕</button>
+    <div class="modal-title">Desasignar persona</div>
+    <div class="modal-sub">
+      <span class="mono text-accent" id="un-person-display">—</span> dejará de estar asignada a
+      <span class="mono text-accent" id="un-project-display">—</span>.
+      La fila queda <span class="mono">archived: true</span>; se puede revivir reasignando con la misma fecha de inicio.
+    </div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal('unassign-modal')">Cancelar</button>
+      <button class="btn danger" id="un-submit">Desasignar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== CONTACT MODAL (add + edit) ===================== -->
+<div class="modal-overlay" id="contact-modal">
+  <div class="modal sm" onclick="event.stopPropagation()">
+    <button class="modal-close" onclick="closeModal('contact-modal')">✕</button>
+    <div class="modal-title"><span id="cm-mode-title">Añadir contacto</span></div>
+    <div class="modal-sub">Cliente: <span class="mono text-accent" id="cm-client">—</span> · entry <span class="mono">pending</span>.</div>
+
+    <div class="form-grid">
+      <div class="full">
+        <div class="form-label">Nombre *</div>
+        <input class="form-input" id="cm-name">
+      </div>
+      <div>
+        <div class="form-label">Rol</div>
+        <input class="form-input" id="cm-role" placeholder="CISO / IT Manager…">
+      </div>
+      <div>
+        <div class="form-label">Email</div>
+        <input class="form-input mono" id="cm-email" type="email">
+      </div>
+      <div class="full">
+        <div class="form-label">Teléfono</div>
+        <input class="form-input mono" id="cm-phone">
+      </div>
+    </div>
+
+    <div class="journal-preview">
+      <div class="journal-preview-label">→ journal entry generado</div>
+      <div class="journal-preview-val" id="cm-preview">op: contact_add · proposer: human · status: pending</div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal('contact-modal')">Cancelar</button>
+      <button class="btn danger" id="cm-remove" style="display:none;">Eliminar</button>
+      <button class="btn primary" id="cm-submit">Crear entry</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== EDIT PERSON MODAL ===================== -->
+<div class="modal-overlay" id="edit-person-modal">
+  <div class="modal" onclick="event.stopPropagation()">
+    <button class="modal-close" onclick="closeModal('edit-person-modal')">✕</button>
+    <div class="modal-title">Editar persona</div>
+    <div class="modal-sub">ID: <span class="mono text-accent" id="ep-id-display">—</span> · solo se envían los campos modificados. Entry <span class="mono">pending</span>.</div>
+
+    <div class="form-grid">
+      <div class="full">
+        <div class="form-label">Nombre completo</div>
+        <input class="form-input" id="ep-name">
+      </div>
+      <div>
+        <div class="form-label">Oficina</div>
+        <select class="form-select" id="ep-office">
+          <option value="madrid">madrid</option>
+          <option value="barcelona">barcelona</option>
+          <option value="lisboa">lisboa</option>
+          <option value="remote">remote</option>
+        </select>
+      </div>
+      <div>
+        <div class="form-label">Ciudad</div>
+        <input class="form-input" id="ep-city">
+      </div>
+      <div>
+        <div class="form-label">Timezone</div>
+        <input class="form-input mono" id="ep-tz" placeholder="CET">
+      </div>
+      <div>
+        <div class="form-label">Idiomas (CSV)</div>
+        <input class="form-input mono" id="ep-langs" placeholder="es,en">
+      </div>
+      <div>
+        <div class="form-label">Base role</div>
+        <input class="form-input" id="ep-base-role" placeholder="pentester">
+      </div>
+      <div>
+        <div class="form-label">Nivel global</div>
+        <select class="form-select" id="ep-level">
+          <option>junior</option><option>intermediate</option><option>senior</option><option>master</option>
+        </select>
+      </div>
+      <div>
+        <div class="form-label">FTE</div>
+        <input class="form-input mono" id="ep-fte" type="number" min="0" max="1" step="0.1">
+      </div>
+      <div></div>
+    </div>
+
+    <div class="journal-preview">
+      <div class="journal-preview-label">→ journal entry generado</div>
+      <div class="journal-preview-val">op: person_update · proposer: human · status: pending</div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal('edit-person-modal')">Cancelar</button>
+      <button class="btn primary" id="ep-submit">Guardar cambios</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== EDIT PROJECT MODAL ===================== -->
+<div class="modal-overlay" id="edit-project-modal">
+  <div class="modal" onclick="event.stopPropagation()">
+    <button class="modal-close" onclick="closeModal('edit-project-modal')">✕</button>
+    <div class="modal-title">Editar proyecto</div>
+    <div class="modal-sub">Código: <span class="mono text-accent" id="eproj-code-display">—</span> · solo se envían los campos modificados. Entry <span class="mono">pending</span>.</div>
+
+    <div class="form-grid">
+      <div>
+        <div class="form-label">Cliente (alias)</div>
+        <select class="form-select" id="eproj-client"></select>
+      </div>
+      <div>
+        <div class="form-label">Tipo</div>
+        <select class="form-select" id="eproj-type">
+          <option>pentest_web</option><option>pentest_infra</option><option>red_team</option>
+          <option>purple</option><option>cti_retainer</option><option>research</option><option>internal</option>
+        </select>
+      </div>
+      <div>
+        <div class="form-label">Inicio</div>
+        <input class="form-input mono" id="eproj-start" type="date">
+      </div>
+      <div>
+        <div class="form-label">Fin</div>
+        <input class="form-input mono" id="eproj-end" type="date">
+      </div>
+      <div>
+        <div class="form-label">Horas estimadas</div>
+        <input class="form-input mono" id="eproj-hours" type="number" min="0" step="10">
+      </div>
+      <div>
+        <div class="form-label">Status</div>
+        <select class="form-select" id="eproj-status">
+          <option>pipeline</option><option>active</option><option>closed</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="journal-preview">
+      <div class="journal-preview-label">→ journal entry generado</div>
+      <div class="journal-preview-val">op: project_update · proposer: human · status: pending</div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal('edit-project-modal')">Cancelar</button>
+      <button class="btn" onclick="closeModal('edit-project-modal');openRequiredSkills(state._editingProject)">Editar required skills →</button>
+      <button class="btn primary" id="eproj-submit">Guardar cambios</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== EDIT REQUIRED SKILLS MODAL ===================== -->
+<div class="modal-overlay" id="req-skills-modal">
+  <div class="modal" onclick="event.stopPropagation()">
+    <button class="modal-close" onclick="closeModal('req-skills-modal')">✕</button>
+    <div class="modal-title">Required skills del proyecto</div>
+    <div class="modal-sub">Proyecto: <span class="mono text-accent" id="rs-code-display">—</span> · entry <span class="mono">pending</span>.</div>
+
+    <div id="rs-rows" style="display:flex;flex-direction:column;gap:8px;margin-bottom:10px;"></div>
+    <button class="btn small" id="rs-add">+ Añadir skill requerida</button>
+
+    <div class="journal-preview">
+      <div class="journal-preview-label">→ journal entry generado</div>
+      <div class="journal-preview-val">op: project_update · solo required_skills · proposer: human · status: pending</div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal('req-skills-modal')">Cancelar</button>
+      <button class="btn primary" id="rs-submit">Guardar required skills</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== EDIT CLIENT MODAL ===================== -->
+<div class="modal-overlay" id="edit-client-modal">
+  <div class="modal sm" onclick="event.stopPropagation()">
+    <button class="modal-close" onclick="closeModal('edit-client-modal')">✕</button>
+    <div class="modal-title">Editar cliente</div>
+    <div class="modal-sub">ID: <span class="mono text-accent" id="ec-id-display">—</span> · entry <span class="mono">pending</span>.</div>
+
+    <div class="form-grid">
+      <div class="full">
+        <div class="form-label">Nombre</div>
+        <input class="form-input" id="ec-name">
+      </div>
+      <div>
+        <div class="form-label">Sector</div>
+        <input class="form-input" id="ec-sector">
+      </div>
+      <div>
+        <div class="form-label">Tamaño</div>
+        <select class="form-select" id="ec-size">
+          <option value="">—</option><option>SMB</option><option>Mid-market</option><option>Enterprise</option><option>Interno</option>
+        </select>
+      </div>
+      <div class="full">
+        <div class="form-label">País (ISO-2)</div>
+        <input class="form-input mono" id="ec-country" maxlength="2">
+      </div>
+      <div class="full">
+        <div class="form-label">Descripción</div>
+        <textarea class="form-textarea" id="ec-desc"></textarea>
+      </div>
+    </div>
+
+    <div class="journal-preview">
+      <div class="journal-preview-label">→ journal entry generado</div>
+      <div class="journal-preview-val">op: client_update · proposer: human · status: pending</div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal('edit-client-modal')">Cancelar</button>
+      <button class="btn primary" id="ec-submit">Guardar cambios</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== EDIT SKILL LABEL MODAL ===================== -->
+<div class="modal-overlay" id="edit-skill-label-modal">
+  <div class="modal sm" onclick="event.stopPropagation()">
+    <button class="modal-close" onclick="closeModal('edit-skill-label-modal')">✕</button>
+    <div class="modal-title">Editar skill del catálogo</div>
+    <div class="modal-sub">ID: <span class="mono text-accent" id="esl-id-display">—</span> · el ID no se puede cambiar.</div>
+
+    <div class="form-grid">
+      <div class="full">
+        <div class="form-label">Label en español</div>
+        <input class="form-input" id="esl-label">
+      </div>
+      <div class="full">
+        <div class="form-label">Descripción</div>
+        <textarea class="form-textarea" id="esl-desc" style="min-height:100px;" placeholder="Qué cubre esta skill, criterio para L1→L5…"></textarea>
+      </div>
+    </div>
+
+    <div class="journal-preview">
+      <div class="journal-preview-label">→ journal entry generado</div>
+      <div class="journal-preview-val">op: skill_label_update · proposer: human · status: pending</div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal('edit-skill-label-modal')">Cancelar</button>
+      <button class="btn primary" id="esl-submit">Guardar cambios</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== NEW CATALOG SKILL MODAL ===================== -->
+<div class="modal-overlay" id="new-catalog-skill-modal">
+  <div class="modal sm" onclick="event.stopPropagation()">
+    <button class="modal-close" onclick="closeModal('new-catalog-skill-modal')">✕</button>
+    <div class="modal-title">Nueva skill en catálogo</div>
+    <div class="modal-sub">
+      Añade una skill al catálogo global. Afecta a todo el equipo y al LLM.
+      Se creará como entry <span class="mono">pending</span> en el journal.
+    </div>
+
+    <div class="form-grid">
+      <div class="full">
+        <div class="form-label">ID (snake_case) *</div>
+        <input class="form-input mono" id="ncs-id" placeholder="hacking_kubernetes">
+      </div>
+      <div class="full">
+        <div class="form-label">Label en español *</div>
+        <input class="form-input" id="ncs-label" placeholder="Hacking Kubernetes">
+      </div>
+      <div class="full">
+        <div class="form-label">Descripción</div>
+        <textarea class="form-textarea" id="ncs-desc" placeholder="Qué cubre esta skill, criterio para L1→L5…"></textarea>
+      </div>
+    </div>
+
+    <div class="journal-preview">
+      <div class="journal-preview-label">→ journal entry generado</div>
+      <div class="journal-preview-val">op: skill_catalog_create · proposer: human · status: pending</div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal('new-catalog-skill-modal')">Cancelar</button>
+      <button class="btn primary" id="ncs-submit">Crear entry</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== EDIT PERSON SKILL MODAL ===================== -->
+<div class="modal-overlay" id="skill-modal">
+  <div class="modal sm" onclick="event.stopPropagation()">
+    <button class="modal-close" onclick="closeModal('skill-modal')">✕</button>
+    <div class="modal-title"><span id="sm-mode-title">Editar skill</span></div>
+    <div class="modal-sub">Persona: <span class="mono text-accent" id="sm-person">—</span> · entry <span class="mono">pending</span>.</div>
+
+    <div class="form-grid">
+      <div class="full">
+        <div class="form-label">Skill *</div>
+        <select class="form-select" id="sm-skill"></select>
+      </div>
+      <div>
+        <div class="form-label">Nivel (0-5)</div>
+        <input class="form-input mono" id="sm-level" type="number" min="0" max="5" value="1">
+      </div>
+      <div style="display:flex;align-items:center;">
+        <label style="display:flex;gap:8px;align-items:center;font-size:13px;color:var(--text2);">
+          <input type="checkbox" id="sm-growth"> Growth interest
+        </label>
+      </div>
+      <div class="full">
+        <div class="form-label">Rationale (opcional)</div>
+        <textarea class="form-textarea" id="sm-rationale" placeholder="Por qué este cambio…"></textarea>
+      </div>
+    </div>
+
+    <div class="journal-preview">
+      <div class="journal-preview-label">→ journal entry generado</div>
+      <div class="journal-preview-val">op: skill_update · proposer: human · status: pending</div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal('skill-modal')">Cancelar</button>
+      <button class="btn primary" id="sm-submit">Crear entry</button>
+    </div>
+  </div>
+</div>
+
+<script src="data.js?v=2026-04-27-toast"></script>
+<script src="api.js?v=2026-04-27-toast"></script>
+<script src="app.js?v=2026-04-27-toast"></script>
+</body>
+</html>

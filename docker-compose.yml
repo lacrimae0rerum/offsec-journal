@@ -1,0 +1,27 @@
+# OffSec Journal — DEV ONLY compose.
+#
+# Runs the app with DEV_USER, which BYPASSES Authelia + trusted-proxy checks:
+# every request is authenticated as 'fer'. This is only safe because the port
+# is published on 127.0.0.1 of the host (loopback-only) — NOT reachable from
+# the LAN. Do not change the publish to "8000:8000" or add it to a public host.
+# Production is systemd + nginx + Authelia (see DEPLOY.md), never this file.
+
+services:
+  app:
+    build: .
+    image: offsec-journal:dev
+    container_name: offsec-journal-dev
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8001:8000"   # host:8001 → container:8000. loopback-only: unreachable from the LAN
+    environment:
+      DEV_USER: fer                       # auth bypass — dev only
+      DEV_ALLOW_LAN: "true"               # needed because uvicorn binds 0.0.0.0 inside the container; safe due to the loopback-only publish above
+      SINGLE_TENANT_MODE: "true"          # auto-provision 'fer' into the default team on first request
+      SINGLE_TENANT_DEFAULT_TEAM: offsec
+      SINGLE_TENANT_DEFAULT_ROLE: admin
+      API_HOST: 0.0.0.0
+      API_PORT: "8000"
+    volumes:
+      - ./data:/app/data    # real YAML source of truth (cache.db rebuilt on start)
+      - ./notes:/app/notes

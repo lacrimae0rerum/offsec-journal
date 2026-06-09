@@ -1,0 +1,102 @@
+- code: PT-2026-018
+  client_alias: alfa
+  type: pentest_web
+  window_start: 2026-05-12
+  window_end: 2026-06-06
+  estimated_hours: 240
+  status: pipeline
+  archived: false
+  required_skills:
+    - { skill_id: hacking_web,              weight: 3, min_level: 3 }
+    - { skill_id: bypass_autenticacion,     weight: 2, min_level: 3 }
+    - { skill_id: hacking_cloud,            weight: 3, min_level: 3 }
+    - { skill_id: explotacion_logica_negocio, weight: 2, min_level: 2 }
+    - { skill_id: reporting,                weight: 2, min_level: 3 }
+
+- code: RT-2026-005
+  client_alias: beta
+  type: red_team
+  window_start: 2026-06-01
+  window_end: 2026-07-15
+  estimated_hours: 360
+  status: pipeline
+  archived: false
+  required_skills:
+    - { skill_id: hacking_active_directory,  weight: 3, min_level: 4 }
+    - { skill_id: evasion_defensas,          weight: 3, min_level: 3 }
+    - { skill_id: escalada_privilegios,      weight: 2, min_level: 3 }
+    - { skill_id: reporting,                 weight: 2, min_level: 3 }
+
+- code: RES-2026-001
+  client_alias: interno
+  type: research
+  window_start: 2026-06-01
+  window_end: 2026-12-31
+  estimated_hours: 160
+  status: pipeline
+  archived: false
+  required_skills:
+    - { skill_id: desarrollo_exploits, weight: 3, min_level: 3 }
+
+- code: PT-2026-012
+  client_alias: gamma
+  type: pentest_web
+  window_start: 2026-04-07
+  window_end: 2026-04-25
+  estimated_hours: 160
+  status: active
+  archived: false
+  required_skills:
+    - { skill_id: hacking_web,              weight: 3, min_level: 3 }
+    - { skill_id: bypass_autenticacion,     weight: 2, min_level: 3 }
+    - { skill_id: reporting,                weight: 2, min_level: 3 }
+
+- code: PT-2026-014
+  client_alias: delta
+  type: pentest_web
+  window_start: 2026-04-14
+  window_end: 2026-05-09
+  estimated_hours: 180
+  status: active
+  archived: false
+  required_skills:
+    - { skill_id: hacking_web,            weight: 3, min_level: 3 }
+    - { skill_id: hacking_active_directory, weight: 2, min_level: 3 }
+    - { skill_id: reporting,              weight: 2, min_level: 3 }
+
+- code: RT-2026-003
+  client_alias: epsilon
+  type: red_team
+  window_start: 2026-03-01
+  window_end: 2026-04-30
+  estimated_hours: 320
+  status: active
+  archived: false
+  required_skills:
+    - { skill_id: hacking_active_directory,  weight: 3, min_level: 4 }
+    - { skill_id: escalada_privilegios,      weight: 3, min_level: 3 }
+    - { skill_id: reporting,                 weight: 2, min_level: 3 }
+
+- code: CTI-2026-003
+  client_alias: zeta
+  type: cti_retainer
+  window_start: 2026-01-01
+  window_end: 2026-12-31
+  estimated_hours: 400
+  status: active
+  archived: false
+  required_skills:
+    - { skill_id: osint,                    weight: 3, min_level: 3 }
+    - { skill_id: automatizacion_tooling,   weight: 2, min_level: 3 }
+
+- code: PUR-2026-001
+  client_alias: eta
+  type: purple
+  window_start: 2026-04-01
+  window_end: 2026-04-30
+  estimated_hours: 140
+  status: active
+  archived: false
+  required_skills:
+    - { skill_id: evasion_defensas,        weight: 3, min_level: 3 }
+    - { skill_id: evasion_controles_red,   weight: 2, min_level: 3 }

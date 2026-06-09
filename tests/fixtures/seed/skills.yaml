@@ -1,0 +1,83 @@
+# Catálogo cerrado de 20 skills. Añadir/quitar entradas requiere actualizar
+# también validaciones (core/coherence.py) y los tests. Editar `label_es` y
+# `description` es seguro y se puede hacer desde la UI (/skills admin).
+- id: reconocimiento_externo
+  label_es: Reconocimiento externo
+  description: "TODO: operator-defined"
+  archived: false
+- id: osint
+  label_es: OSINT
+  description: "TODO: operator-defined"
+  archived: false
+- id: hacking_web
+  label_es: Hacking web
+  description: "TODO: operator-defined"
+  archived: false
+- id: bypass_autenticacion
+  label_es: Bypass de autenticación
+  description: "TODO: operator-defined"
+  archived: false
+- id: explotacion_logica_negocio
+  label_es: Explotación lógica de negocio
+  description: "TODO: operator-defined"
+  archived: false
+- id: hacking_active_directory
+  label_es: Hacking Active Directory
+  description: "TODO: operator-defined"
+  archived: false
+- id: pivoting_movimiento_lateral
+  label_es: Pivoting y movimiento lateral
+  description: "TODO: operator-defined"
+  archived: false
+- id: escalada_privilegios
+  label_es: Escalada de privilegios
+  description: "TODO: operator-defined"
+  archived: false
+- id: explotacion_servicios_red
+  label_es: Explotación de servicios de red
+  description: "TODO: operator-defined"
+  archived: false
+- id: phishing
+  label_es: Phishing
+  description: "TODO: operator-defined"
+  archived: false
+- id: ingenieria_social
+  label_es: Ingeniería social
+  description: "TODO: operator-defined"
+  archived: false
+- id: desarrollo_ofensivo
+  label_es: Desarrollo ofensivo
+  description: "TODO: operator-defined"
+  archived: false
+- id: evasion_defensas
+  label_es: Evasión de defensas
+  description: "TODO: operator-defined"
+  archived: false
+- id: desarrollo_exploits
+  label_es: Desarrollo de exploits
+  description: "TODO: operator-defined"
+  archived: false
+- id: hacking_cloud
+  label_es: Hacking cloud
+  description: "TODO: operator-defined"
+  archived: false
+- id: hacking_contenedores
+  label_es: Hacking contenedores
+  description: "TODO: operator-defined"
+  archived: false
+- id: acceso_fisico
+  label_es: Acceso físico
+  description: "TODO: operator-defined"
+  archived: false
+- id: evasion_controles_red
+  label_es: Evasión de controles de red
+  description: "TODO: operator-defined"
+  archived: false
+- id: reporting
+  label_es: Reporting
+  description: "TODO: operator-defined"
+  archived: false
+- id: automatizacion_tooling
+  label_es: Automatización y tooling
+  description: "TODO: operator-defined"
+  archived: false

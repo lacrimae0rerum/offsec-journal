@@ -1,0 +1,152 @@
+# data/journal.yaml — append-only write path para TODAS las mutaciones
+# estructurales. LLM propone con proposer=llm, humano propone con proposer=human.
+# Aplicar/rechazar se hace desde /journal (UI) o CLI. Cada apply crea .bak del
+# YAML afectado antes de mutar; si ruamel falla el apply, el backend restaura.
+#
+# Campos:
+#   id              ULID (26 chars)
+#   timestamp       ISO-8601 UTC de creación de la propuesta
+#   proposer        llm | human
+#   kind            assign | unassign | availability | skill_update |
+#                   person_create | person_update | person_archive |
+#                   project_create | project_update | project_archive |
+#                   client_create | client_update | client_archive |
+#                   contact_add | contact_update | contact_remove |
+#                   office_create | office_update | office_archive |
+#                   skill_label_update
+#   payload         dict tipado por kind
+#   status          pending | applied | rejected
+#   applied_at      ISO-8601 UTC cuando se aplica (opcional)
+#   applied_by      user id (opcional)
+#   rejected_reason texto cuando status=rejected
+
+  - id: 01HYXZABC000000000000000K5
+    timestamp: 2026-04-18T14:15:00Z
+    proposer: llm
+    kind: skill_update
+    payload:
+      person_id: tbd_01
+      skill_id: hacking_web
+      level: 4
+      rationale: Desempeño en PT-2026-012 sugiere subir a lead técnico.
+    status: pending
+    applied_at:
+    applied_by:
+    rejected_reason:
+
+  - id: 01HYXWXYZ00000000000000ABC
+    timestamp: 2026-04-18T12:00:00Z
+    proposer: llm
+    kind: assign
+    payload:
+      person_id: santi
+      project_code: PT-2026-014
+      dedication_pct: 50
+      start: 2026-04-14
+      end: 2026-05-09
+      role: lead
+    status: applied
+    applied_at: 2026-04-18T14:32:00Z
+    applied_by: fer
+    rejected_reason:
+
+  - id: 01HYXUDEF0000000000000XYZ1
+    timestamp: 2026-04-17T09:00:00Z
+    proposer: human
+    kind: availability
+    payload:
+      person_id: fer
+      availability_kind: pto
+      start: 2026-04-21
+      end: 2026-04-25
+      pct: 100
+      reason: Vacaciones
+    status: applied
+    applied_at: 2026-04-17T09:05:00Z
+    applied_by: fer
+    rejected_reason:
+  - id: 01KPJG5HMG1NKDFXPV04G6PWV0
+    timestamp: '2026-04-19T09:11:55Z'
+    proposer: human
+    kind: assign
+    payload:
+      person_id: tbd_04
+      project_code: PT-2026-018
+      dedication_pct: 25
+      start: '2026-05-12'
+      end: '2026-05-20'
+      role: shadow
+    status: applied
+    applied_at: '2026-04-19T09:11:56Z'
+    applied_by: smoketest
+    rejected_reason:
+  - id: 01KPJG66RFMN9J3DPK1YNMGT3Z
+    timestamp: '2026-04-19T09:12:17Z'
+    proposer: human
+    kind: skill_update
+    payload:
+      person_id: tbd_02
+      skill_id: hacking_cloud
+      level: 2
+      growth_interest: true
+      rationale: Test reject flow
+    status: rejected
+    applied_at:
+    applied_by: smoketest
+    rejected_reason: cloud training pending
+  - id: 01KPKGWPMFVB4K3JGSCGKDB41A
+    timestamp: '2026-04-19T18:43:49Z'
+    proposer: human
+    kind: client_create
+    payload:
+      id: demo_smoke
+      name: Demo Smoke SA
+      sector: Tech
+      size: SMB
+      country: ES
+      description: cliente de prueba end-to-end
+    status: applied
+    applied_at: '2026-04-19T18:43:49Z'
+    applied_by: smoketest
+    rejected_reason:
+  - id: 01KPKGWQHF5Q0DJJ4GENXZFP2T
+    timestamp: '2026-04-19T18:43:49Z'
+    proposer: human
+    kind: client_archive
+    payload:
+      id: demo_smoke
+      archived: true
+    status: applied
+    applied_at: '2026-04-19T18:43:50Z'
+    applied_by: smoketest
+    rejected_reason:
+  - id: 01KPKJPR0D072X6YPG6R68GM97
+    timestamp: '2026-04-19T19:15:30Z'
+    proposer: human
+    kind: person_create
+    payload:
+      id: demo_nolocal
+      full_name: Demo NoLocal
+      office: madrid
+      city: ''
+      timezone: CET
+      languages: []
+      base_role: pentester
+      global_level: junior
+      contractual_fte: 1.0
+      start_date: '2026-05-01'
+    status: applied
+    applied_at: '2026-04-19T19:15:31Z'
+    applied_by: bootstrap-smoke
+    rejected_reason:
+  - id: 01KPKMNJD6B7CP7ETAQCYN5RQ5
+    timestamp: '2026-04-19T19:49:49Z'
+    proposer: human
+    kind: person_archive
+    payload:
+      id: fer
+      archived: true
+    status: rejected
+    applied_at:
+    applied_by: human
+    rejected_reason: Test

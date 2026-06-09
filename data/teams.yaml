@@ -1,0 +1,7 @@
+# Teams físicos del MSSP. Solo 2, row-level scoping en toda la app.
+# slug = clave técnica (usada en paths data/<slug>/, notes/<slug>/); no renombrar
+# sin migración. name = display bonito para la UI.
+- slug: offsec
+  name: Offensive Security
+- slug: infosec
+  name: Information Security

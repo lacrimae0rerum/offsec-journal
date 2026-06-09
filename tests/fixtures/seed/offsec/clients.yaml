@@ -1,0 +1,92 @@
+  - id: alfa
+    name: Cliente Alfa
+    sector: Banca
+    size: Enterprise
+    country: ES
+    status: activo
+    archived: false
+    description: >
+      Gran banco español con infraestructura híbrida AWS/on-prem.
+      Foco en compliance PCI-DSS y tests anuales de red team. Relación desde 2023.
+    contacts:
+      - {name: Carlos Vega, role: CISO, email: carlos.vega@alfa.example, phone: ""}
+      - {name: Marta Soler, role: IT Manager, email: marta.soler@alfa.example, phone: ""}
+
+  - id: beta
+    name: Cliente Beta
+    sector: Telecom
+    size: Enterprise
+    country: ES
+    status: activo
+    archived: false
+    description: Operador telecom español; red team anual.
+    contacts: []
+
+  - id: gamma
+    name: Cliente Gamma
+    sector: Retail
+    size: Mid-market
+    country: ES
+    status: activo
+    archived: false
+    description: Retailer europeo; test anual de aplicación e-commerce.
+    contacts: []
+
+  - id: delta
+    name: Cliente Delta
+    sector: Seguros
+    size: Enterprise
+    country: ES
+    status: activo
+    archived: false
+    description: Aseguradora; test de aplicaciones corporativas.
+    contacts: []
+
+  - id: epsilon
+    name: Cliente Epsilon
+    sector: Energía
+    size: Enterprise
+    country: PT
+    status: activo
+    archived: false
+    description: Operador energético portugués; red team anual.
+    contacts: []
+
+  - id: zeta
+    name: Cliente Zeta
+    sector: Banca
+    size: Mid-market
+    country: ES
+    status: activo
+    archived: false
+    description: Banco mediano; retainer CTI mensual.
+    contacts: []
+
+  - id: eta
+    name: Cliente Eta
+    sector: Transporte
+    size: Mid-market
+    country: ES
+    status: activo
+    archived: false
+    description: Empresa transporte; purple team puntual.
+    contacts: []
+
+  - id: interno
+    name: Interno
+    sector: MSSP
+    size: Interno
+    country: ES
+    status: activo
+    archived: false
+    description: Proyectos internos del MSSP (research, tooling).
+    contacts: []
+  - id: demo_smoke
+    name: Demo Smoke SA
+    sector: Tech
+    size: SMB
+    country: ES
+    status: activo
+    archived: true
+    description: cliente de prueba end-to-end
+    contacts: []
