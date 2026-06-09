@@ -1,5 +1,7 @@
 # OffSec Journal
 
+![OffSec Journal](assets/banner.png)
+
 Herramienta interna para gestionar equipos de seguridad ofensiva. Dos equipos aislados
 (**OffSec** e **InfoSec**) con sus propias personas, proyectos, clientes, asignaciones,
 disponibilidad y notas. Catálogo de skills compartido.
