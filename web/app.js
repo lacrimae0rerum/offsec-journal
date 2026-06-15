@@ -1365,18 +1365,37 @@ function showNoAccessOverlay(detail) {
   overlay.classList.remove('hidden');
 }
 
+function _paintWelcome(me) {
+  const nameEl = document.getElementById('welcome-name');
+  const metaEl = document.getElementById('welcome-meta');
+  const enterBtn = document.getElementById('welcome-enter');
+  if (nameEl) nameEl.textContent = me.display_name || me.username || '—';
+  const team = me.team || {};
+  if (metaEl) {
+    const role = me.role === 'admin' ? 'admin' : 'miembro';
+    const teamLabel = team.name || team.slug || '';
+    metaEl.textContent = teamLabel ? `${role} · ${teamLabel}` : role;
+  }
+  if (enterBtn) {
+    enterBtn.disabled = false;
+    enterBtn.focus();
+  }
+}
+
+function _hideWelcome() {
+  const overlay = document.getElementById('welcome-overlay');
+  if (overlay) overlay.classList.add('hidden');
+}
+
 async function bootstrapApp() {
   // Wire api callbacks first so the getMe() itself triggers them on failure
   api.onUnauthenticated = () => {
-    // Reload to let nginx forward-auth redirect to Authelia
+    _hideWelcome();
     window.location.reload();
   };
   api.onForbidden = (detail) => {
-    // A 403 raised while loading the admin section means "not admin of this
-    // team", not "no access to the app". Suppress the global overlay; the
-    // local try/catch in loadAdminPage paints an in-section notice instead.
     if (state.admin._loading) return;
-    // detail is the raw response body (JSON string with {detail: "..."})
+    _hideWelcome();
     let msg = null;
     try { msg = JSON.parse(detail).detail; } catch {}
     showNoAccessOverlay(msg);
@@ -1385,12 +1404,14 @@ async function bootstrapApp() {
   try {
     const me = await api.getMe();
     paintIdentity(me);
+    _paintWelcome(me);
     state.online = true;
     return true;
   } catch (err) {
     // 401/403 already triggered the callbacks above; anything else is a genuine
     // backend error we surface silently here (user sees empty app).
     console.error('bootstrapApp failed:', err);
+    _hideWelcome();
     state.online = false;
     return false;
   }
@@ -2012,6 +2033,12 @@ document.addEventListener('DOMContentLoaded', async () => {
   wireUserCreateModal();
   wireUserActions();
   wireAdminEventControls();
+
+  const _welcomeEnter = document.getElementById('welcome-enter');
+  if (_welcomeEnter) _welcomeEnter.addEventListener('click', () => {
+    sessionStorage.setItem('osj_welcomed', '1');
+    _hideWelcome();
+  });
 
   // Close popovers when clicking outside
   document.addEventListener('scroll', hideSchedulePopover, true);

@@ -10,6 +10,20 @@
 </head>
 <body>
 
+<!-- ===================== WELCOME OVERLAY ===================== -->
+<div class="welcome-overlay" id="welcome-overlay">
+  <div class="welcome-box">
+    <div class="welcome-logo">OSJ</div>
+    <div class="welcome-wordmark">Offensive Security Journal</div>
+    <div class="welcome-identity">
+      <div class="welcome-name" id="welcome-name">Cargando…</div>
+      <div class="welcome-meta" id="welcome-meta"></div>
+    </div>
+    <button class="btn primary welcome-enter" id="welcome-enter" disabled>Entrar</button>
+  </div>
+</div>
+<script>if (sessionStorage.getItem('osj_welcomed')) document.getElementById('welcome-overlay').classList.add('hidden');</script>
+
 <!-- ===================== SIDEBAR ===================== -->
 <nav class="sidebar" id="sidebar">
   <div class="sidebar-logo">

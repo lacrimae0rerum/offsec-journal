@@ -1009,6 +1009,70 @@ button { cursor: pointer; background: none; border: none; }
 .sidebar.mini .sidebar-user-role { display: none; }
 .sidebar.mini .logout-btn { font-size: 10px; text-align: center; }
 
+/* ============ WELCOME OVERLAY ============ */
+.welcome-overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+.welcome-overlay.hidden { display: none; }
+.welcome-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  max-width: 340px;
+  width: 100%;
+  text-align: center;
+}
+.welcome-logo {
+  font-family: var(--font-mono);
+  font-size: 2.4rem;
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: 0.12em;
+  border: 2px solid var(--border-strong);
+  padding: 10px 26px;
+  border-radius: var(--radius);
+}
+.welcome-wordmark {
+  font-size: 12px;
+  color: var(--text3);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-family: var(--font-mono);
+}
+.welcome-identity {
+  border-top: 1px dashed var(--border);
+  padding-top: 20px;
+  width: 100%;
+}
+.welcome-name {
+  font-size: 1.35rem;
+  font-weight: 500;
+  color: var(--text);
+  margin-bottom: 6px;
+}
+.welcome-meta {
+  font-size: 12px;
+  color: var(--text2);
+  font-family: var(--font-mono);
+  letter-spacing: 0.04em;
+}
+.welcome-enter {
+  margin-top: 8px;
+  min-width: 140px;
+}
+.welcome-enter:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
 /* ============ NO-ACCESS OVERLAY ============ */
 .no-access-overlay {
   position: fixed;
