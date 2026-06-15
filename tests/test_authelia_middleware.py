@@ -7,7 +7,6 @@ so each test checks the matching row landed.
 """
 from __future__ import annotations
 
-import pytest
 from fastapi.testclient import TestClient
 
 from api.config import settings

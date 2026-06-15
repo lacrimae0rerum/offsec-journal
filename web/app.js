@@ -697,7 +697,10 @@ function renderProjects() {
   `).join('');
 
   // Delegated handlers — no inline onclick
-  $$('.project-card, .project-row').forEach(el => el.addEventListener('click', () => goToPage('project-detail')));
+  $$('.project-card, .project-row').forEach(el => el.addEventListener('click', () => {
+    state._editingProject = el.dataset.code;
+    goToPage('project-detail');
+  }));
 }
 
 function coverBadge(cov) {

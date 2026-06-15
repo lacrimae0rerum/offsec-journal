@@ -16,7 +16,6 @@ Auth: require_authelia reads Remote-User header (set by nginx after forward-auth
 against Authelia) and looks it up in the local `user` table. The app does NOT
 own user passwords/MFA; that's Authelia's job.
 """
-from pathlib import Path
 
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
