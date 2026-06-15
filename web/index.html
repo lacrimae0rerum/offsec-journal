@@ -27,6 +27,7 @@
   <div class="nav-item" data-page="journal"><span class="nav-icon">≡</span><span class="nav-label">Journal</span></div>
   <div class="nav-item" data-page="chat"><span class="nav-icon">▷</span><span class="nav-label">Chat</span></div>
   <div class="nav-item" data-page="search"><span class="nav-icon">⌕</span><span class="nav-label">Search</span></div>
+  <div class="nav-item" data-page="admin"><span class="nav-icon">⚙</span><span class="nav-label">Admin</span></div>
 
   <div class="sidebar-footer">
     <div class="sidebar-user" id="sidebar-user">
@@ -529,6 +530,76 @@
     </div>
   </section>
 
+  <!-- ========== ADMIN ========== -->
+  <section class="page" id="page-admin">
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Admin</h1>
+        <p class="page-sub">Usuarios y auditoría de tu team</p>
+      </div>
+    </div>
+
+    <!-- Usuarios del team -->
+    <div class="wf-card">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+        <h3 style="margin:0;">Usuarios del team</h3>
+        <div style="display:flex;align-items:center;gap:16px;">
+          <label class="toggle">Mostrar archivados <input type="checkbox" id="admin-show-archived"></label>
+          <button class="btn primary" onclick="openModal('new-user-modal')">Nuevo usuario</button>
+        </div>
+      </div>
+      <table class="wf-table mt-md">
+        <thead>
+          <tr>
+            <th>Username</th>
+            <th>Display name</th>
+            <th>Email</th>
+            <th style="min-width:64px">Rol</th>
+            <th style="min-width:72px">Estado</th>
+            <th style="min-width:160px">Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="admin-users-tbody"></tbody>
+      </table>
+    </div>
+
+    <!-- Auth-events -->
+    <div class="wf-card mt-md">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+        <h3 style="margin:0;">Auth-events</h3>
+        <div style="display:flex;align-items:center;gap:12px;">
+          <select id="admin-event-filter" class="form-select">
+            <option value="">Todos los eventos</option>
+            <option value="login_success">login_success</option>
+            <option value="unknown_user">unknown_user</option>
+            <option value="archived_user">archived_user</option>
+            <option value="role_denied">role_denied</option>
+            <option value="team_mismatch">team_mismatch</option>
+            <option value="untrusted_proxy">untrusted_proxy</option>
+            <option value="missing_remote_user">missing_remote_user</option>
+            <option value="user_autoprovisioned">user_autoprovisioned</option>
+            <option value="dev_bypass">dev_bypass</option>
+          </select>
+          <button class="btn" id="admin-events-prev">Anterior</button>
+          <span class="small text-muted" id="admin-events-info"></span>
+          <button class="btn" id="admin-events-next">Siguiente</button>
+        </div>
+      </div>
+      <table class="wf-table mt-md">
+        <thead>
+          <tr>
+            <th style="min-width:140px">Timestamp</th>
+            <th style="min-width:140px">Evento</th>
+            <th style="min-width:80px">Usuario</th>
+            <th style="min-width:100px">IP</th>
+            <th>Path</th>
+          </tr>
+        </thead>
+        <tbody id="admin-events-tbody"></tbody>
+      </table>
+    </div>
+  </section>
+
 </main>
 
 <!-- ===================== DRAWER (Person) ===================== -->
@@ -775,6 +846,42 @@
     <div class="modal-actions">
       <button class="btn" onclick="closeModal('new-client-modal')">Cancelar</button>
       <button class="btn primary" id="nc-submit">Crear entry</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== NEW USER MODAL ===================== -->
+<div class="modal-overlay" id="new-user-modal">
+  <div class="modal sm" onclick="event.stopPropagation()">
+    <button class="modal-close" onclick="closeModal('new-user-modal')">✕</button>
+    <div class="modal-title">Nuevo usuario</div>
+    <div class="modal-sub">Se creará en el team del actor. El rol puede cambiarse después.</div>
+
+    <div class="form-grid">
+      <div>
+        <div class="form-label">Username *</div>
+        <input class="form-input mono" id="nu-username" placeholder="jdoe">
+      </div>
+      <div>
+        <div class="form-label">Rol *</div>
+        <select class="form-select" id="nu-role">
+          <option value="member">member</option>
+          <option value="admin">admin</option>
+        </select>
+      </div>
+      <div>
+        <div class="form-label">Display name</div>
+        <input class="form-input" id="nu-display" placeholder="Jane Doe">
+      </div>
+      <div>
+        <div class="form-label">Email</div>
+        <input class="form-input mono" id="nu-email" type="email" placeholder="jane@org.tld">
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal('new-user-modal')">Cancelar</button>
+      <button class="btn primary" id="nu-submit">Crear usuario</button>
     </div>
   </div>
 </div>

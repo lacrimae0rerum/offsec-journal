@@ -9,8 +9,8 @@
 | Capa | Cobertura | Estado |
 |---|---|---|
 | Backend (15 routers, 22 kinds) | 95% | Sólido — validación cross-entity en 14 kinds, rate limit en 3 mutadores, audit con 9 eventos |
-| Frontend (11 páginas, 16 modales) | 78% | 9/11 páginas dinámicas. `chat` 100% mock, `search` aside **funcional** (D3: tipo/fechas/tags), sin UI admin |
-| Tests | 188 verdes | Integración + rate-limit 429 (N0.5) + filtros de search (D3). **Sin E2E browser** |
+| Frontend (11 páginas, 17 modales) | ~85% | 10/11 páginas dinámicas. `chat` 100% mock, `search` aside **funcional** (D3), `admin` **funcional** (D4/F11, 2026-06-15) |
+| Tests | 200 verdes | Integración + rate-limit 429 (N0.5) + filtros de search (D3) + contrato Admin UI (F11). **Sin E2E browser** |
 | Documentación | 85% vigente | Drift de cifras corregido (2026-06-07); congelados marcados como históricos; CHANGELOG + mapa de proyecto añadidos. Pendiente: ADRs y guía de usuario |
 | Deploy | 0% activo | Pendiente de configurar (nginx + Authelia + systemd) |
 
@@ -40,8 +40,8 @@
   aside wireado (checkboxes tipo, rango fechas, tags togglables, limpiar). skills/journal/orden sin backend → deshabilitados.
   +10 tests (188 total), ruff + sintaxis JS (bun) verdes. **Pendiente:** `/alfred-dev:verify` (UAT en navegador).
 
-- [x] **D4. ¿Sección admin tendrá UI o queda CLI-only?** → **Construir la UI** (Línea A): página `/admin`
-  con users + auth-events; wraps de `api.js` ya existen. Candidato a `/alfred-dev:feature` (~6h).
+- [x] **D4. ¿Sección admin tendrá UI o queda CLI-only?** → **IMPLEMENTADO** (Línea A, 2026-06-15, sin commit):
+  página `/admin` con users + auth-events construida. Decisión: construir la UI.
 
 - [x] **D5. Pendientes vivos de diseño:** (Línea A, salvo P10)
   - [ ] **P1** rellenar 20 skill descriptions reales (actualmente `"TODO: operator-defined"`)
@@ -168,10 +168,11 @@
   - Acción: subir a 120 o bucket separado para apply
   - Effort: 20min
 
-- [ ] **F11. Admin UI** _(solo si D4=sí)_
-  - Página nueva `/admin` con tablas de `users` y `auth-events`
-  - Wraps de `api.js` ya existen (líneas 94-101); falta `web/index.html` + handlers
-  - Effort: ~6h
+- [x] **F11. Admin UI** _(2026-06-15, sin commit)_
+  - Página `/admin` con gestión de usuarios (crear, cambiar rol, archivar/desarchivar)
+    y tabla de auth-events con filtro por tipo de evento y paginación. Frontend puro
+    sobre endpoints ya existentes; 12 tests de contrato añadidos.
+  - Effort real: ~6h
 
 - [ ] **F12. Confirm modal en lugar de `confirm()` nativo**
   - `wireContactModal` (~1755) usa `confirm()` bloqueante
@@ -222,6 +223,7 @@
 
 | Fecha | Evento | Commit |
 |---|---|---|
+| 2026-06-15 | D4/F11 completado: Admin UI (`/admin`) con gestión de usuarios y auth-events paginados, +12 tests (200) | sin commit |
 | 2026-06-08 | D3 implementado: filtros de búsqueda (tipo/fechas/tags) backend+frontend, +10 tests (188) | sin commit |
 | 2026-06-08 | D1-D5 resueltas; bifurcación Línea A (producto) / Línea B (chat con agente) | sin commit |
 | 2026-06-08 | Nivel 0 completado (N0.1-N0.7): limpieza datos+XSS, docs sincronizadas, +2 tests (178), higiene git | sin commit |

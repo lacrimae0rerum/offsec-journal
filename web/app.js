@@ -13,6 +13,17 @@ const state = {
   sidebarStyle: 'full',
   overviewWeeks: 5,
   online: false,   // set true once /api/health responds
+  admin: {
+    showArchived: false,
+    eventFilter: '',
+    eventOffset: 0,
+    eventLimit: 100,
+    // Set while loadAdminPage is in flight so the global onForbidden overlay
+    // (api.js fires it on any 403) is suppressed for the admin section. A 403
+    // here means "not admin of this team" — we show an in-section notice
+    // instead of expelling the user from the whole app (see ADR-004).
+    _loading: false,
+  },
 };
 
 // ===================== NAVIGATION =====================
@@ -32,6 +43,7 @@ function goToPage(id) {
     if (code) renderProjectDetail(code);
   }
   if (id === 'map') initMap();
+  if (id === 'admin') loadAdminPage();
 }
 
 function renderProjectDetail(code) {
@@ -1357,6 +1369,10 @@ async function bootstrapApp() {
     window.location.reload();
   };
   api.onForbidden = (detail) => {
+    // A 403 raised while loading the admin section means "not admin of this
+    // team", not "no access to the app". Suppress the global overlay; the
+    // local try/catch in loadAdminPage paints an in-section notice instead.
+    if (state.admin._loading) return;
     // detail is the raw response body (JSON string with {detail: "..."})
     let msg = null;
     try { msg = JSON.parse(detail).detail; } catch {}
@@ -1375,6 +1391,318 @@ async function bootstrapApp() {
     state.online = false;
     return false;
   }
+}
+
+// ===================== ADMIN (users + auth-events) =====================
+// All data here is rendered through H() (alias of _escapeHtml). auth-events in
+// particular carry attacker-controlled fields (username_attempted, user_agent,
+// path, detail) — every one is escaped to prevent stored XSS. This is a
+// security-blocking requirement, not a style choice.
+
+/**
+ * Entry point for the admin page. Called by goToPage('admin').
+ * Loads users (honouring the archived toggle) and triggers auth-events.
+ * On 403 it paints a clean in-section notice instead of a toast/overlay.
+ * @param {boolean} [archived=state.admin.showArchived]
+ * @returns {Promise<void>}
+ */
+async function loadAdminPage(archived) {
+  if (state.admin._loading) return;  // H7: prevent concurrent loads
+  const showArchived = archived === undefined ? state.admin.showArchived : archived;
+
+  state.admin._loading = true;
+  // H2: restore DOM if a previous 403 hid the content blocks
+  _restoreAdminContent();
+  try {
+    const users = await api.adminListUsers(showArchived);
+    _renderUsersTable(users);
+  } catch (err) {
+    if (err && err.status === 403) {
+      _renderAdminForbidden();
+      return;
+    }
+    const tbody = document.getElementById('admin-users-tbody');
+    if (tbody) {
+      tbody.innerHTML = '<tr><td colspan="6" class="text-danger small">No se pudieron cargar los usuarios.</td></tr>';
+    }
+    _adminError(err);
+    return;
+  } finally {
+    state.admin._loading = false;
+  }
+
+  loadAuthEvents(true);
+}
+
+/**
+ * Shows a persistent "needs admin" notice without destroying the DOM structure.
+ * The content blocks are hidden, not removed, so a subsequent successful load
+ * can restore them (H2 fix).
+ */
+function _renderAdminForbidden() {
+  const page = document.getElementById('page-admin');
+  if (!page) return;
+  if (!document.getElementById('admin-forbidden-notice')) {
+    const notice = document.createElement('div');
+    notice.id = 'admin-forbidden-notice';
+    notice.className = 'wf-card';
+    notice.innerHTML = '<p>Esta sección requiere rol admin en tu team.</p>';
+    page.appendChild(notice);
+  }
+  page.querySelectorAll('.wf-card:not(#admin-forbidden-notice)').forEach(el => {
+    el.style.display = 'none';
+  });
+}
+
+/** Reverses _renderAdminForbidden: removes the notice and restores content blocks. */
+function _restoreAdminContent() {
+  const notice = document.getElementById('admin-forbidden-notice');
+  if (notice) notice.remove();
+  const page = document.getElementById('page-admin');
+  if (page) {
+    page.querySelectorAll('.wf-card').forEach(el => { el.style.display = ''; });
+  }
+}
+
+/**
+ * Pure render of the users table. No fetch.
+ * Each row carries data-user-id; action buttons carry data-action.
+ * @param {Array<{id,username,display_name,email,role,archived}>} users
+ */
+function _renderUsersTable(users) {
+  const H = _escapeHtml;
+  const tbody = document.getElementById('admin-users-tbody');
+  if (!tbody) return;
+
+  if (!users || users.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="6" class="text-muted small">Sin usuarios.</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = users.map(user => {
+    const isArchived = !!user.archived;
+    const roleToggle = user.role === 'admin'
+      ? `<button class="btn small" data-user-id="${H(user.id)}" data-action="role-member">→ member</button>`
+      : `<button class="btn small" data-user-id="${H(user.id)}" data-action="role-admin">→ admin</button>`;
+    const archiveToggle = isArchived
+      ? `<button class="btn small" data-user-id="${H(user.id)}" data-action="unarchive">Desarchivar</button>`
+      : `<button class="btn small" data-user-id="${H(user.id)}" data-action="archive">Archivar</button>`;
+    const statusBadge = isArchived
+      ? '<span class="badge archived">archivado</span>'
+      : '<span class="badge">activo</span>';
+
+    return `<tr data-user-id="${H(user.id)}">
+        <td class="mono">${H(user.username)}</td>
+        <td>${H(user.display_name)}</td>
+        <td class="mono">${H(user.email)}</td>
+        <td>${H(user.role)}</td>
+        <td>${statusBadge}</td>
+        <td style="display:flex;gap:6px;flex-wrap:wrap;">${roleToggle} ${archiveToggle}</td>
+      </tr>`;
+  }).join('');
+}
+
+/**
+ * Wires the create-user modal submit. Call ONCE at init.
+ * Validates username, disables the submit button during the request, and on
+ * success closes the modal, clears inputs and reloads the page.
+ */
+function wireUserCreateModal() {
+  const submit = document.getElementById('nu-submit');
+  if (!submit) return;
+
+  submit.addEventListener('click', async () => {
+    const usernameInput = document.getElementById('nu-username');
+    const roleInput = document.getElementById('nu-role');
+    const displayInput = document.getElementById('nu-display');
+    const emailInput = document.getElementById('nu-email');
+
+    const username = (usernameInput.value || '').trim();
+    if (!username) { _toast('Username obligatorio', 'warn'); return; }
+
+    const body = {
+      username,
+      role: roleInput.value,
+      display_name: (displayInput.value || '').trim(),
+      email: (emailInput.value || '').trim(),
+    };
+
+    submit.disabled = true;
+    try {
+      await api.adminCreateUser(body);
+      closeModal('new-user-modal');
+      usernameInput.value = '';
+      displayInput.value = '';
+      emailInput.value = '';
+      roleInput.value = 'member';
+      _toast('Usuario creado', 'success');
+      loadAdminPage();
+    } catch (err) {
+      _adminError(err);
+    } finally {
+      submit.disabled = false;
+    }
+  });
+
+  // Archived toggle lives with the users block; wire it here (once).
+  document.getElementById('admin-show-archived')?.addEventListener('change', (e) => {
+    state.admin.showArchived = e.target.checked;
+    loadAdminPage(state.admin.showArchived);
+  });
+}
+
+/**
+ * Event delegation on #admin-users-tbody (one listener, survives re-render).
+ * Resolves data-action into the matching adminPatchUser call.
+ */
+function wireUserActions() {
+  const tbody = document.getElementById('admin-users-tbody');
+  if (!tbody) return;
+
+  const bodyByAction = {
+    archive: { archived: true },
+    unarchive: { archived: false },
+    'role-admin': { role: 'admin' },
+    'role-member': { role: 'member' },
+  };
+
+  tbody.addEventListener('click', async (e) => {
+    const button = e.target.closest('button[data-action]');
+    if (!button) return;
+
+    const userId = button.dataset.userId;
+    const patch = bodyByAction[button.dataset.action];
+    if (!userId || !patch) return;
+
+    button.disabled = true;
+    try {
+      await api.adminPatchUser(userId, patch);
+      _toast('Actualizado', 'success');
+      loadAdminPage(state.admin.showArchived);
+    } catch (err) {
+      _adminError(err);
+      button.disabled = false;
+    }
+  });
+}
+
+/**
+ * Wires the auth-events filter + pagination controls. Call ONCE at init.
+ */
+function wireAdminEventControls() {
+  document.getElementById('admin-event-filter')?.addEventListener('change', (e) => {
+    state.admin.eventFilter = e.target.value;
+    loadAuthEvents(true);
+  });
+  document.getElementById('admin-events-prev')?.addEventListener('click', () => {
+    state.admin.eventOffset = Math.max(0, state.admin.eventOffset - state.admin.eventLimit);
+    loadAuthEvents(false);
+  });
+  document.getElementById('admin-events-next')?.addEventListener('click', () => {
+    state.admin.eventOffset += state.admin.eventLimit;
+    loadAuthEvents(false);
+  });
+}
+
+/**
+ * Loads (or reloads) the auth-events table.
+ * @param {boolean} [reset=false] if true, resets offset to 0 (filter change).
+ * @returns {Promise<void>}
+ */
+async function loadAuthEvents(reset) {
+  if (reset) state.admin.eventOffset = 0;
+
+  const { eventLimit, eventOffset, eventFilter } = state.admin;
+  const params = { limit: eventLimit, offset: eventOffset };
+  if (eventFilter) params.event = eventFilter;
+
+  try {
+    const data = await api.adminAuthEvents(params);
+    const events = data.events || [];
+    _renderAuthEventsTable(events);
+
+    const info = document.getElementById('admin-events-info');
+    if (info) {
+      if (events.length === 0) {
+        info.textContent = eventOffset === 0 ? 'Sin eventos' : `offset ${eventOffset}`;
+      } else {
+        info.textContent = `${eventOffset + 1} – ${eventOffset + events.length}`
+          + (data.total != null ? ` de ${data.total}` : '');
+      }
+    }
+
+    const prev = document.getElementById('admin-events-prev');
+    if (prev) prev.disabled = eventOffset === 0;
+    const next = document.getElementById('admin-events-next');
+    if (next) next.disabled = data.total != null
+      ? (eventOffset + events.length >= data.total)
+      : (events.length < eventLimit);  // H5: use total when available
+  } catch (err) {
+    const tbody = document.getElementById('admin-events-tbody');
+    if (tbody) {
+      tbody.innerHTML = '<tr><td colspan="5" class="text-danger small">No se pudieron cargar los eventos.</td></tr>';
+    }
+    _adminError(err);
+  }
+}
+
+/**
+ * Pure render of the auth-events table. No fetch.
+ * SECURITY: every field is escaped via H(); detail (JSON) is stringified first.
+ * @param {Array<object>} events
+ */
+function _renderAuthEventsTable(events) {
+  const H = _escapeHtml;
+  const tbody = document.getElementById('admin-events-tbody');
+  if (!tbody) return;
+
+  if (!events || events.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="5" class="text-muted small">Sin eventos.</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = events.map(event => {
+    const detail = event.detail == null
+      ? ''
+      : (typeof event.detail === 'string' ? event.detail : JSON.stringify(event.detail));
+    return `<tr>
+        <td class="mono small">${H(_fmtAdminTs(event.ts))}</td>
+        <td>${H(event.event)}</td>
+        <td class="mono">${H(event.username_attempted)}</td>
+        <td class="mono">${H(event.ip)}</td>
+        <td class="mono small" title="${H(detail)}">${H(event.path)}</td>
+      </tr>`;
+  }).join('');
+}
+
+/**
+ * Formats an auth-event timestamp for display. Falls back to the raw value if
+ * it doesn't parse, so a malformed ts never blanks out the cell.
+ * @param {string} ts
+ * @returns {string}
+ */
+function _fmtAdminTs(ts) {
+  if (!ts) return '';
+  const parsed = new Date(ts);
+  return isNaN(parsed.getTime()) ? String(ts) : parsed.toLocaleString();
+}
+
+/**
+ * Maps an api-layer error to a readable toast. Centralises the HTTP->message
+ * map. Never rethrows, never dumps the raw response body.
+ * @param {Error & {status?:number, detail?:string}} err
+ * @param {string} [fallback]
+ */
+function _adminError(err, fallback = 'No se pudo completar la operación.') {
+  const map = {
+    400: 'Datos inválidos: revisa los campos.',
+    403: 'No tienes permisos de administrador.',
+    404: 'El elemento ya no existe.',
+    409: 'Ya existe o hay un conflicto con el estado actual.',
+  };
+  const status = err && err.status;
+  const msg = map[status] || (err && err.detail) || fallback;
+  _toast(msg, 'error');
 }
 
 // ===================== NOTES (append-only markdown) =====================
@@ -1677,6 +2005,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   wireMap();
 
   wireJournalTabs();
+
+  wireUserCreateModal();
+  wireUserActions();
+  wireAdminEventControls();
 
   // Close popovers when clicking outside
   document.addEventListener('scroll', hideSchedulePopover, true);
