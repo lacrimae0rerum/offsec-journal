@@ -2129,7 +2129,7 @@ function wireNewPersonModal() {
 
 // ---------- New Project ----------
 function _renderNprSkillRows(rows) {
-  const opts = _SKILL_CATALOG.map(s => `<option value="${s}">${s}</option>`).join('');
+  const opts = _skillCatalogOpts();
   const container = $('#npr-skills-rows');
   if (!container) return;
   if (rows.length === 0) {
@@ -2230,7 +2230,7 @@ function wireNewProjectModal() {
   if (addBtn) {
     addBtn.addEventListener('click', () => {
       _collectNprSkillRows();
-      state._npsRows.push({ skill_id: _SKILL_CATALOG[0], weight: 2, min_level: 3 });
+      state._npsRows.push({ skill_id: (DATA.skills || []).find(s => !s.archived)?.id || '', weight: 2, min_level: 3 });
       _renderNprSkillRows(state._npsRows);
     });
   }
@@ -2426,14 +2426,8 @@ function openEditSkill(personId, existing) {
   $('#sm-mode-title').textContent = existing ? `Editar ${existing.skill_id || existing.id}` : 'Añadir skill';
   // Fill skill select with catalog
   const sel = $('#sm-skill');
-  // Use DATA skills catalog as source of truth for the dropdown
-  const cat = [
-    'reconocimiento_externo','osint','hacking_web','bypass_autenticacion','explotacion_logica_negocio',
-    'hacking_active_directory','pivoting_movimiento_lateral','escalada_privilegios','explotacion_servicios_red',
-    'phishing','ingenieria_social','desarrollo_ofensivo','evasion_defensas','desarrollo_exploits',
-    'hacking_cloud','hacking_contenedores','acceso_fisico','evasion_controles_red','reporting','automatizacion_tooling',
-  ];
-  sel.innerHTML = cat.map(s => `<option value="${s}">${s}</option>`).join('');
+  const cat = (DATA.skills || []).filter(s => !s.archived);
+  sel.innerHTML = cat.map(s => `<option value="${s.id}">${s.label_es || s.id}</option>`).join('');
   if (existing) {
     sel.value = existing.skill_id || existing.id;
     sel.disabled = true;
@@ -2581,15 +2575,13 @@ function openRequiredSkills(code) {
   openModal('req-skills-modal');
 }
 
-const _SKILL_CATALOG = [
-  'reconocimiento_externo','osint','hacking_web','bypass_autenticacion','explotacion_logica_negocio',
-  'hacking_active_directory','pivoting_movimiento_lateral','escalada_privilegios','explotacion_servicios_red',
-  'phishing','ingenieria_social','desarrollo_ofensivo','evasion_defensas','desarrollo_exploits',
-  'hacking_cloud','hacking_contenedores','acceso_fisico','evasion_controles_red','reporting','automatizacion_tooling',
-];
+function _skillCatalogOpts() {
+  return (DATA.skills || []).filter(s => !s.archived)
+    .map(s => `<option value="${s.id}">${s.label_es || s.id}</option>`).join('');
+}
 
 function _renderReqSkillRows(rows) {
-  const opts = _SKILL_CATALOG.map(s => `<option value="${s}">${s}</option>`).join('');
+  const opts = _skillCatalogOpts();
   const html = rows.length === 0
     ? '<div class="small text-muted">Sin skills requeridas aún — usa "+ Añadir skill requerida".</div>'
     : rows.map((r, i) => `
@@ -2632,7 +2624,7 @@ function wireRequiredSkillsModal() {
   if (!add || !submit) return;
   add.addEventListener('click', () => {
     _collectReqSkillRows();
-    state._rsRows.push({ skill_id: _SKILL_CATALOG[0], weight: 2, min_level: 3 });
+    state._rsRows.push({ skill_id: (DATA.skills || []).find(s => !s.archived)?.id || '', weight: 2, min_level: 3 });
     _renderReqSkillRows(state._rsRows);
   });
   submit.addEventListener('click', async () => {
