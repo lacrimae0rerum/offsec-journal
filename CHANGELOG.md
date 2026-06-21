@@ -30,6 +30,37 @@ Cambios en el working tree, todavía sin commitear.
   aside de filtros del frontend wireado.
 
 ### Fixed
+- **Formato de id/code, campos vacíos, email y sobre-asignación (BUG-APP-003/004/005):**
+  los payloads de creación del journal no validaban el formato de identificadores que sí
+  exigen los modelos de lectura. Añadidos `Field(pattern=...)` a `person_create.id`,
+  `client_create.id`, `skill_catalog_create.id` (snake_case) y `project_create.code`
+  (`^[A-Z]{2,4}-\d{4}-\d{3}$`); validador de no-vacío en `full_name`/`name`/`label_es`;
+  validación de formato de email en `contact_add`/`contact_update`. Nueva regla de
+  coherencia `over_allocation` (`api/core/coherence.py` + `queries.list_assignments`):
+  avisa cuando la dedicación agregada de asignaciones solapadas supera el 100%. Tests en
+  `tests/test_handlers_all.py`.
+- **Rangos de fecha invertidos y validación temprana (BUG-APP-002):** `assign`,
+  `availability` y `project_create/update` aceptaban *y aplicaban* rangos con fin
+  anterior al inicio (datos inválidos en BD). Añadidos validadores `start <= end` en los
+  modelos Pydantic (`api/models/journal.py`). Además, varias comprobaciones que solo
+  ocurrían en apply (duplicados de person/client/project/office/skill, `assign` duplicado
+  activo, `unassign` sin asignación activa, `contact_index` fuera de rango) se han subido
+  a `create_entry` (`_check_referenced_entities`), de modo que devuelven un 400 legible y
+  no dejan entradas `pending` inaplicables. Tests nuevos en `tests/test_handlers_all.py`;
+  `tests/test_rollback.py` actualizado al nuevo contrato (rechazo en create).
+- **Validación de skill_id en el catálogo (BUG-APP-001):** `_check_referenced_entities`
+  no comprobaba que el `skill_id` referenciado existiera en el catálogo compartido
+  (`data/skills.yaml`). Una entrada `skill_update`, `skill_label_update` o un
+  `project_create/update` con `required_skills` apuntando a una skill inexistente se
+  aceptaba en `POST /api/journal` (HTTP 200, quedaba `pending`) y solo fallaba al aplicar
+  con un error opaco `FOREIGN KEY constraint failed`. Ahora el create devuelve 400 con un
+  mensaje legible (`skill '<id>' not found in catalog`). 4 tests nuevos en
+  `tests/test_handlers_all.py`.
+- **Skills dropdown:** los desplegables de asignación de skills (persona y required skills
+  de proyecto) usaban una lista hardcodeada de 20 skills en el frontend; las skills nuevas
+  creadas y aprobadas vía Journal nunca aparecían. Sustituido por `DATA.skills` (catálogo
+  vivo cargado desde `/api/skills`) en `openEditSkill()`, `_renderReqSkillRows()` y
+  `_renderNprSkillRows()`.
 - **H2:** 403 en `/admin` ya no destruye el DOM; los bloques se ocultan y se restauran
   automáticamente en la siguiente carga exitosa (`_renderAdminForbidden` + `_restoreAdminContent`).
 - **H5:** paginación de auth-events usa el campo `total` de la respuesta para calcular si

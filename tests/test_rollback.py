@@ -5,7 +5,7 @@ restored from their .bak siblings. Nothing half-applied is tolerated.
 """
 import pytest
 
-from api.core import db, journal, yaml_io
+from api.core import journal, yaml_io
 from api.config import settings
 
 
@@ -15,27 +15,19 @@ def test_apply_invalid_payload_raises_before_mutation(tmp_env):
         journal.create_entry("assign", {"person_id": "fer"}, "offsec", proposer="human")
 
 
-def test_apply_duplicate_assign_rolls_back(tmp_env):
-    """fer already has PT-2026-012 active; applying same assign again must raise AND not
-    dirty the journal.yaml status."""
-    entry = journal.create_entry("assign", {
-        "person_id": "fer", "project_code": "PT-2026-012",
-        "dedication_pct": 50, "start": "2026-04-07", "end": "2026-04-25", "role": "lead",
-    }, "offsec", proposer="human")
-
+def test_duplicate_assign_rejected_at_create(tmp_env):
+    """fer already has an active PT-2026-012 assignment for that exact start; an exact
+    duplicate (same person/project/start) is now rejected at create-time, so no pending
+    entry is left and nothing is mutated."""
     original_people = yaml_io.load(settings.data_dir / "offsec" / "people.yaml")
-
-    with pytest.raises(journal.JournalError):
-        journal.apply_entry(entry["id"], "offsec", applied_by="test")
-
-    # people.yaml should be intact (not mid-mutated)
+    with pytest.raises(journal.JournalError, match="already exists"):
+        journal.create_entry("assign", {
+            "person_id": "fer", "project_code": "PT-2026-012",
+            "dedication_pct": 50, "start": "2026-04-07", "end": "2026-04-25", "role": "lead",
+        }, "offsec", proposer="human")
+    # people.yaml untouched (no mid-mutation, no rollback needed)
     after_people = yaml_io.load(settings.data_dir / "offsec" / "people.yaml")
     assert len(original_people) == len(after_people)
-
-    # journal entry status should still be pending (not applied)
-    with db.transaction() as conn:
-        row = conn.execute("SELECT status FROM journal_entry WHERE id = ?", (entry["id"],)).fetchone()
-    assert row["status"] == "pending"
 
 
 def test_create_missing_person_rejected_at_create(tmp_env):
@@ -80,12 +72,12 @@ def test_reject_of_already_applied_raises(tmp_env):
         journal.reject_entry(entry["id"], "offsec", "cambio de idea", applied_by="test")
 
 
-def test_contact_remove_out_of_range_rolls_back(tmp_env):
-    entry = journal.create_entry("contact_remove", {
-        "client_id": "alfa", "contact_index": 99,
-    }, "offsec", proposer="human")
+def test_contact_remove_out_of_range_rejected_at_create(tmp_env):
+    """An out-of-range contact_index is now rejected at create-time."""
     original = yaml_io.load(settings.data_dir / "offsec" / "clients.yaml")
-    with pytest.raises(journal.JournalError):
-        journal.apply_entry(entry["id"], "offsec", applied_by="test")
+    with pytest.raises(journal.JournalError, match="out of range"):
+        journal.create_entry("contact_remove", {
+            "client_id": "alfa", "contact_index": 99,
+        }, "offsec", proposer="human")
     after = yaml_io.load(settings.data_dir / "offsec" / "clients.yaml")
     assert original == after

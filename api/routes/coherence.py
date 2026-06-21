@@ -15,5 +15,8 @@ async def list_all_warnings(
     with db.transaction() as conn:
         people = queries.list_people(conn, ctx.team_id)
         skills_by_person = {p["id"]: p["skills"] for p in people}
-        warnings = check_all(people, skills_by_person)
+        assignments_by_person: dict[str, list] = {}
+        for a in queries.list_assignments(conn, ctx.team_id):
+            assignments_by_person.setdefault(a["person_id"], []).append(a)
+        warnings = check_all(people, skills_by_person, assignments_by_person)
         return {"warnings": warnings, "count": len(warnings)}
