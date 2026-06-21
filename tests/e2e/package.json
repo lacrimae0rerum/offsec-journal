@@ -1,0 +1,19 @@
+{
+  "name": "offsec-journal-e2e",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Playwright E2E tests for OffSec Journal",
+  "scripts": {
+    "test": "playwright test",
+    "test:loop": "playwright test --grep-invert @write",
+    "test:write": "playwright test --grep @write",
+    "test:headed": "playwright test --headed --grep-invert @write",
+    "test:ui": "playwright test --ui",
+    "test:battery": "playwright test specs/11-battery.spec.js",
+    "test:smoke": "playwright test --grep @smoke",
+    "install-browsers": "playwright install chromium"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.48.0"
+  }
+}
