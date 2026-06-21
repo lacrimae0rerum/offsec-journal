@@ -4,10 +4,29 @@ Every kind maps to a specific payload shape. The backend validates the payload
 on POST /api/journal and rejects malformed entries before they ever land in
 data/journal.yaml. apply() dispatches on kind to the right core.queries fn.
 """
+import re
 from datetime import date, datetime
 from typing import Annotated, Literal, Union
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator, model_validator
+
+# Identifier patterns — mirror the read models (api/models/person.py, project.py,
+# client.py) so the write path can't admit ids the read path would reject.
+_SNAKE_ID = r"^[a-z][a-z0-9_]*$"
+_PROJECT_CODE = r"^[A-Z]{2,4}-\d{4}-\d{3}$"
+_EMAIL = r"^[^@\s]+@[^@\s]+\.[^@\s]+$"
+
+
+def _not_blank(v: str) -> str:
+    if not v or not v.strip():
+        raise ValueError("must not be empty")
+    return v
+
+
+def _valid_optional_email(v: str) -> str:
+    if v and not re.match(_EMAIL, v):
+        raise ValueError("invalid email format")
+    return v
 
 JournalProposer = Literal["llm", "human"]
 JournalStatus = Literal["pending", "applied", "rejected"]
@@ -48,6 +67,12 @@ class AssignPayload(BaseModel):
     end: date
     role: Literal["lead", "executor", "reviewer", "shadow"] = "executor"
 
+    @model_validator(mode="after")
+    def _check_dates(self) -> "AssignPayload":
+        if self.end < self.start:
+            raise ValueError("end must be on or after start")
+        return self
+
 
 class UnassignPayload(BaseModel):
     kind: Literal["unassign"] = "unassign"
@@ -64,6 +89,12 @@ class AvailabilityPayload(BaseModel):
     pct: int = Field(default=100, ge=0, le=100)
     reason: str = ""
 
+    @model_validator(mode="after")
+    def _check_dates(self) -> "AvailabilityPayload":
+        if self.end < self.start:
+            raise ValueError("end must be on or after start")
+        return self
+
 
 class SkillUpdatePayload(BaseModel):
     kind: Literal["skill_update"] = "skill_update"
@@ -76,9 +107,11 @@ class SkillUpdatePayload(BaseModel):
 
 class PersonCreatePayload(BaseModel):
     kind: Literal["person_create"] = "person_create"
-    id: str
+    id: str = Field(pattern=_SNAKE_ID)
     full_name: str
     office: str
+
+    _check_name = field_validator("full_name")(_not_blank)
     city: str = ""
     timezone: str = "CET"
     languages: list[str] = []
@@ -109,7 +142,7 @@ class PersonArchivePayload(BaseModel):
 
 class ProjectCreatePayload(BaseModel):
     kind: Literal["project_create"] = "project_create"
-    code: str
+    code: str = Field(pattern=_PROJECT_CODE)
     client_alias: str
     type: str
     window_start: date
@@ -117,6 +150,12 @@ class ProjectCreatePayload(BaseModel):
     estimated_hours: int = 0
     status: Literal["pipeline", "active", "closed"] = "pipeline"
     required_skills: list[dict] = []
+
+    @model_validator(mode="after")
+    def _check_window(self) -> "ProjectCreatePayload":
+        if self.window_end < self.window_start:
+            raise ValueError("window_end must be on or after window_start")
+        return self
 
 
 class ProjectUpdatePayload(BaseModel):
@@ -130,6 +169,13 @@ class ProjectUpdatePayload(BaseModel):
     status: Literal["pipeline", "active", "closed"] | None = None
     required_skills: list[dict] | None = None
 
+    @model_validator(mode="after")
+    def _check_window(self) -> "ProjectUpdatePayload":
+        if (self.window_start is not None and self.window_end is not None
+                and self.window_end < self.window_start):
+            raise ValueError("window_end must be on or after window_start")
+        return self
+
 
 class ProjectArchivePayload(BaseModel):
     kind: Literal["project_archive"] = "project_archive"
@@ -139,9 +185,11 @@ class ProjectArchivePayload(BaseModel):
 
 class ClientCreatePayload(BaseModel):
     kind: Literal["client_create"] = "client_create"
-    id: str
+    id: str = Field(pattern=_SNAKE_ID)
     name: str
     sector: str = ""
+
+    _check_name = field_validator("name")(_not_blank)
     size: str = ""
     country: str = ""
     description: str = ""
@@ -171,6 +219,9 @@ class ContactAddPayload(BaseModel):
     email: str = ""
     phone: str = ""
 
+    _check_name = field_validator("name")(_not_blank)
+    _check_email = field_validator("email")(_valid_optional_email)
+
 
 class ContactUpdatePayload(BaseModel):
     kind: Literal["contact_update"] = "contact_update"
@@ -180,6 +231,11 @@ class ContactUpdatePayload(BaseModel):
     role: str | None = None
     email: str | None = None
     phone: str | None = None
+
+    @field_validator("email")
+    @classmethod
+    def _check_email(cls, v: str | None) -> str | None:
+        return _valid_optional_email(v) if v is not None else v
 
 
 class ContactRemovePayload(BaseModel):
@@ -214,9 +270,11 @@ class OfficeArchivePayload(BaseModel):
 
 class SkillCatalogCreatePayload(BaseModel):
     kind: Literal["skill_catalog_create"] = "skill_catalog_create"
-    id: str  # snake_case, used as skill_id throughout
+    id: str = Field(pattern=_SNAKE_ID)  # snake_case, used as skill_id throughout
     label_es: str
     description: str = "TODO: operator-defined"
+
+    _check_label = field_validator("label_es")(_not_blank)
 
 
 class SkillCatalogArchivePayload(BaseModel):

@@ -597,32 +597,98 @@ def _check_referenced_entities(kind: str, payload: dict, team_slug: str) -> None
             for r in rows
         )
 
+    def _skill_exists(skill_id: str | None, *, allow_archived: bool = False) -> bool:
+        # Skills live in the shared catalog (data/skills.yaml), not per-team.
+        if not skill_id:
+            return False
+        rows = yaml_io.load(_sp("skills", data_dir)) or []
+        return any(
+            s.get("id") == skill_id and (allow_archived or not s.get("archived"))
+            for s in rows
+        )
+
+    def _load_rows(entity: str) -> list[dict]:
+        return yaml_io.load(_tp(team_slug, entity, data_dir)) or []
+
     if kind == "assign":
         if not _exists("people", "id", payload.get("person_id")):
             raise JournalError(f"person '{payload.get('person_id')}' not found in team '{team_slug}'")
         if not _exists("projects", "code", payload.get("project_code")):
             raise JournalError(f"project '{payload.get('project_code')}' not found in team '{team_slug}'")
+        # Reject an exact active duplicate (same person/project/start) — mirrors the
+        # handler so the operator gets a readable 400 instead of an inapplicable pending.
+        if any(
+            r.get("person_id") == payload.get("person_id")
+            and r.get("project_code") == payload.get("project_code")
+            and str(r.get("start")) == str(payload.get("start"))
+            and not r.get("archived")
+            for r in _load_rows("assignments")
+        ):
+            raise JournalError("assignment already exists; create unassign + new assign to replace")
     elif kind in ("person_update", "person_archive"):
         if not _exists("people", "id", payload.get("id"), allow_archived=True):
             raise JournalError(f"person '{payload.get('id')}' not found in team '{team_slug}'")
     elif kind == "skill_update":
         if not _exists("people", "id", payload.get("person_id"), allow_archived=True):
             raise JournalError(f"person '{payload.get('person_id')}' not found in team '{team_slug}'")
+        if not _skill_exists(payload.get("skill_id")):
+            raise JournalError(f"skill '{payload.get('skill_id')}' not found in catalog")
     elif kind in ("project_update", "project_archive"):
         if not _exists("projects", "code", payload.get("code"), allow_archived=True):
             raise JournalError(f"project '{payload.get('code')}' not found in team '{team_slug}'")
     elif kind in ("client_update", "client_archive"):
         if not _exists("clients", "id", payload.get("id"), allow_archived=True):
             raise JournalError(f"client '{payload.get('id')}' not found in team '{team_slug}'")
-    elif kind in ("contact_add", "contact_update", "contact_remove"):
+    elif kind == "contact_add":
         if not _exists("clients", "id", payload.get("client_id"), allow_archived=True):
             raise JournalError(f"client '{payload.get('client_id')}' not found in team '{team_slug}'")
+    elif kind in ("contact_update", "contact_remove"):
+        client = next((c for c in _load_rows("clients") if c.get("id") == payload.get("client_id")), None)
+        if client is None:
+            raise JournalError(f"client '{payload.get('client_id')}' not found in team '{team_slug}'")
+        contacts = client.get("contacts") or []
+        idx = payload.get("contact_index")
+        if not isinstance(idx, int) or not (0 <= idx < len(contacts)):
+            raise JournalError(f"contact_index {idx} out of range")
     elif kind == "unassign":
         # unassign references existing assignment rows; person/project must exist
         if not _exists("people", "id", payload.get("person_id"), allow_archived=True):
             raise JournalError(f"person '{payload.get('person_id')}' not found in team '{team_slug}'")
         if not _exists("projects", "code", payload.get("project_code"), allow_archived=True):
             raise JournalError(f"project '{payload.get('project_code')}' not found in team '{team_slug}'")
+        if not any(
+            r.get("person_id") == payload.get("person_id")
+            and r.get("project_code") == payload.get("project_code")
+            and not r.get("archived")
+            for r in _load_rows("assignments")
+        ):
+            raise JournalError("no active assignment matches")
+    elif kind == "skill_label_update":
+        # label edits target the shared catalog; an archived skill can still be relabelled.
+        if not _skill_exists(payload.get("skill_id"), allow_archived=True):
+            raise JournalError(f"skill '{payload.get('skill_id')}' not found in catalog")
+
+    # Project required_skills point at the shared catalog. Validate them here so a
+    # bad skill_id returns a readable 400 at create time instead of a FOREIGN KEY
+    # error during apply. Applies to both create and update.
+    if kind in ("project_create", "project_update"):
+        for rs in (payload.get("required_skills") or []):
+            sid = rs.get("skill_id") if isinstance(rs, dict) else None
+            if not _skill_exists(sid):
+                raise JournalError(f"required skill '{sid}' not found in catalog")
+
+    # Duplicate-id checks at create time. The handlers also enforce these, but doing
+    # it here returns a readable 400 instead of leaving an inapplicable pending entry.
+    if kind == "person_create" and _exists("people", "id", payload.get("id"), allow_archived=True):
+        raise JournalError(f"person id '{payload.get('id')}' already exists in team '{team_slug}'")
+    if kind == "client_create" and _exists("clients", "id", payload.get("id"), allow_archived=True):
+        raise JournalError(f"client '{payload.get('id')}' already exists in team '{team_slug}'")
+    if kind == "project_create" and _exists("projects", "code", payload.get("code"), allow_archived=True):
+        raise JournalError(f"project '{payload.get('code')}' already exists in team '{team_slug}'")
+    if kind == "office_create" and _exists("offices", "office_id", payload.get("office_id"), allow_archived=True):
+        raise JournalError(f"office '{payload.get('office_id')}' already exists in team '{team_slug}'")
+    if kind == "skill_catalog_create" and _skill_exists(payload.get("id"), allow_archived=True):
+        raise JournalError(f"skill '{payload.get('id')}' already exists")
 
 
 def create_entry(kind: str, payload: dict, team_slug: str, *,

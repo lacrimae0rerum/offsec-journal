@@ -72,10 +72,56 @@ def check_person(person: dict, skills: list[dict]) -> list[Warning]:
     return out
 
 
-def check_all(people: list[dict], skills_by_person: dict[str, list[dict]]) -> list[Warning]:
+def check_overallocation(
+    people: list[dict],
+    assignments_by_person: dict[str, list[dict]],
+) -> list[Warning]:
+    """Warn when a person's active assignments overlap in time and their combined
+    dedication exceeds 100%.
+
+    Peak overlap always occurs on some assignment's start date, so we sample the
+    aggregate dedication at each start and report the worst window per person.
+    """
+    out: list[Warning] = []
+    for p in people:
+        if p.get("archived"):
+            continue
+        rows = [
+            a for a in assignments_by_person.get(p["id"], [])
+            if not a.get("archived") and a.get("start") and a.get("end")
+        ]
+        worst_pct = 0
+        worst_date: str | None = None
+        for sample in rows:
+            d = sample["start"]
+            total = sum(
+                int(a.get("dedication_pct", 0))
+                for a in rows
+                if a["start"] <= d <= a["end"]
+            )
+            if total > worst_pct:
+                worst_pct, worst_date = total, d
+        if worst_pct > 100:
+            out.append({
+                "person_id": p["id"],
+                "rule": "over_allocation",
+                "detail": f"Sobre-asignación: {worst_pct}% de dedicación agregada en "
+                          f"asignaciones solapadas a fecha {worst_date} (máximo 100%).",
+                "severity": "warning",
+            })
+    return out
+
+
+def check_all(
+    people: list[dict],
+    skills_by_person: dict[str, list[dict]],
+    assignments_by_person: dict[str, list[dict]] | None = None,
+) -> list[Warning]:
     warnings: list[Warning] = []
     for p in people:
         if p.get("archived"):
             continue
         warnings.extend(check_person(p, skills_by_person.get(p["id"], [])))
+    if assignments_by_person is not None:
+        warnings.extend(check_overallocation(people, assignments_by_person))
     return warnings

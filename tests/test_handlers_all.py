@@ -250,8 +250,187 @@ def test_handler_skill_catalog_archive(tmp_env):
 def test_handler_skill_catalog_create_duplicate_raises(tmp_env):
     import pytest
     from api.core import journal as journal_mod
-    entry = journal_mod.create_entry("skill_catalog_create", {
-        "id": "osint", "label_es": "OSINT v2",
-    }, "offsec", proposer="human")
+    # A duplicate skill id is now rejected at create-time (no inapplicable pending).
+    with pytest.raises(journal_mod.JournalError, match="already exists"):
+        journal_mod.create_entry("skill_catalog_create", {
+            "id": "osint", "label_es": "OSINT v2",
+        }, "offsec", proposer="human")
+
+
+# ---------- skill_id catalog validation at create time (BUG-APP-001) ----------
+def test_skill_update_unknown_skill_rejected_at_create(tmp_env):
+    """skill_update referencing a non-existent catalog skill must fail at create
+    with a readable error, not at apply with a FOREIGN KEY error."""
+    import pytest
+    from api.core import journal as journal_mod
+    with pytest.raises(journal_mod.JournalError, match="not found in catalog"):
+        journal_mod.create_entry(
+            "skill_update",
+            {"person_id": "fer", "skill_id": "skill_que_no_existe", "level": 3},
+            "offsec", proposer="human",
+        )
+
+
+def test_skill_update_known_skill_still_ok(tmp_env):
+    """Regression: a valid skill_id is accepted and applied normally."""
+    _apply("skill_update", {"person_id": "fer", "skill_id": "hacking_web", "level": 5})
+    with db.transaction() as conn:
+        r = conn.execute(
+            "SELECT level FROM person_skill WHERE person_id='fer' AND skill_id='hacking_web'"
+        ).fetchone()
+    assert r["level"] == 5
+
+
+def test_project_create_unknown_required_skill_rejected(tmp_env):
+    import pytest
+    from api.core import journal as journal_mod
+    with pytest.raises(journal_mod.JournalError, match="required skill 'no_such_skill' not found"):
+        journal_mod.create_entry(
+            "project_create",
+            {
+                "code": "TST-2026-999", "client_alias": "acme", "type": "pentest_web",
+                "window_start": "2026-07-01", "window_end": "2026-07-31",
+                "required_skills": [{"skill_id": "no_such_skill", "weight": 1, "min_level": 2}],
+            },
+            "offsec", proposer="human",
+        )
+
+
+def test_skill_label_update_unknown_skill_rejected(tmp_env):
+    import pytest
+    from api.core import journal as journal_mod
+    with pytest.raises(journal_mod.JournalError, match="not found in catalog"):
+        journal_mod.create_entry(
+            "skill_label_update",
+            {"skill_id": "ghost_skill", "label_es": "Fantasma"},
+            "offsec", proposer="human",
+        )
+
+
+# ---------- inverted date ranges rejected at create (BUG-APP-002) ----------
+def test_assign_inverted_dates_rejected(tmp_env):
+    import pytest
+    from api.core import journal as journal_mod
+    with pytest.raises(journal_mod.JournalError, match="on or after"):
+        journal_mod.create_entry("assign", {
+            "person_id": "fer", "project_code": "PT-2026-012",
+            "dedication_pct": 10, "start": "2026-05-01", "end": "2026-04-01",
+        }, "offsec", proposer="human")
+
+
+def test_availability_inverted_dates_rejected(tmp_env):
+    import pytest
+    from api.core import journal as journal_mod
+    with pytest.raises(journal_mod.JournalError, match="on or after"):
+        journal_mod.create_entry("availability", {
+            "person_id": "fer", "availability_kind": "pto",
+            "start": "2026-05-10", "end": "2026-05-01",
+        }, "offsec", proposer="human")
+
+
+def test_project_inverted_window_rejected(tmp_env):
+    import pytest
+    from api.core import journal as journal_mod
+    with pytest.raises(journal_mod.JournalError, match="on or after"):
+        journal_mod.create_entry("project_create", {
+            "code": "INV-2026-001", "client_alias": "alfa", "type": "pentest_web",
+            "window_start": "2026-06-01", "window_end": "2026-05-01",
+        }, "offsec", proposer="human")
+
+
+# ---------- early validation of state-dependent cases ----------
+def test_unassign_without_active_rejected_at_create(tmp_env):
+    import pytest
+    from api.core import journal as journal_mod
+    # santi exists but has no active assignment on PT-2026-012
+    with pytest.raises(journal_mod.JournalError, match="no active assignment"):
+        journal_mod.create_entry("unassign", {
+            "person_id": "santi", "project_code": "PT-2026-012",
+        }, "offsec", proposer="human")
+
+
+def test_duplicate_person_create_rejected_at_create(tmp_env):
+    import pytest
+    from api.core import journal as journal_mod
+    with pytest.raises(journal_mod.JournalError, match="already exists"):
+        journal_mod.create_entry("person_create", {
+            "id": "fer", "full_name": "Dup", "office": "madrid", "start_date": "2026-01-01",
+        }, "offsec", proposer="human")
+
+
+# ---------- id/code format + non-empty + email validation (BUG-APP-003/004) ----------
+def test_person_create_malformed_id_rejected(tmp_env):
+    import pytest
+    from api.core import journal as journal_mod
+    for bad in ("Bad Id!", "123abc", "UPPER"):
+        with pytest.raises(journal_mod.JournalError):
+            journal_mod.create_entry("person_create", {
+                "id": bad, "full_name": "X", "office": "madrid", "start_date": "2026-01-01",
+            }, "offsec", proposer="human")
+
+
+def test_project_create_malformed_code_rejected(tmp_env):
+    import pytest
+    from api.core import journal as journal_mod
+    for bad in ("bad-code", "ACM-26-1", "acm-2026-001"):
+        with pytest.raises(journal_mod.JournalError):
+            journal_mod.create_entry("project_create", {
+                "code": bad, "client_alias": "alfa", "type": "pentest_web",
+                "window_start": "2026-07-01", "window_end": "2026-07-31",
+            }, "offsec", proposer="human")
+
+
+def test_skill_catalog_create_malformed_id_rejected(tmp_env):
+    import pytest
+    from api.core import journal as journal_mod
     with pytest.raises(journal_mod.JournalError):
-        journal_mod.apply_entry(entry["id"], "offsec", applied_by="test")
+        journal_mod.create_entry("skill_catalog_create", {
+            "id": "Not Snake", "label_es": "X",
+        }, "offsec", proposer="human")
+
+
+def test_empty_required_text_rejected(tmp_env):
+    import pytest
+    from api.core import journal as journal_mod
+    with pytest.raises(journal_mod.JournalError):
+        journal_mod.create_entry("person_create", {
+            "id": "blank_name", "full_name": "   ", "office": "madrid", "start_date": "2026-01-01",
+        }, "offsec", proposer="human")
+    with pytest.raises(journal_mod.JournalError):
+        journal_mod.create_entry("client_create", {"id": "blank_cli", "name": ""},
+                                 "offsec", proposer="human")
+
+
+def test_contact_invalid_email_rejected(tmp_env):
+    import pytest
+    from api.core import journal as journal_mod
+    with pytest.raises(journal_mod.JournalError):
+        journal_mod.create_entry("contact_add", {
+            "client_id": "alfa", "name": "X", "email": "not-an-email",
+        }, "offsec", proposer="human")
+
+
+# ---------- over-allocation coherence rule (BUG-APP-005) ----------
+def test_overallocation_warning():
+    from api.core import coherence
+    people = [{"id": "p1", "global_level": "senior", "archived": False}]
+    assignments = {"p1": [
+        {"person_id": "p1", "project_code": "A", "dedication_pct": 70,
+         "start": "2026-07-01", "end": "2026-09-30", "archived": False},
+        {"person_id": "p1", "project_code": "B", "dedication_pct": 60,
+         "start": "2026-08-01", "end": "2026-10-31", "archived": False},
+    ]}
+    warns = coherence.check_overallocation(people, assignments)
+    assert any(w["rule"] == "over_allocation" for w in warns)
+
+
+def test_no_overallocation_when_sequential():
+    from api.core import coherence
+    people = [{"id": "p1", "global_level": "senior", "archived": False}]
+    assignments = {"p1": [
+        {"person_id": "p1", "project_code": "A", "dedication_pct": 100,
+         "start": "2026-07-01", "end": "2026-07-31", "archived": False},
+        {"person_id": "p1", "project_code": "B", "dedication_pct": 100,
+         "start": "2026-08-01", "end": "2026-08-31", "archived": False},
+    ]}
+    assert coherence.check_overallocation(people, assignments) == []

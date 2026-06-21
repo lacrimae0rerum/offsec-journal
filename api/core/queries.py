@@ -38,6 +38,15 @@ def list_people(conn: sqlite3.Connection, team_id: str, *,
     return people
 
 
+def list_assignments(conn: sqlite3.Connection, team_id: str, *,
+                     include_archived: bool = False) -> list[dict]:
+    q = "SELECT * FROM assignment WHERE team_id = ?"
+    params: tuple[Any, ...] = (team_id,)
+    if not include_archived:
+        q += " AND archived = 0"
+    return _rows(conn, q, params)
+
+
 def get_person(conn: sqlite3.Connection, team_id: str, person_id: str) -> dict | None:
     r = conn.execute(
         "SELECT * FROM person WHERE team_id = ? AND id = ?",
