@@ -19,6 +19,10 @@ data/**/*.bak
 node_modules/
 dist/
 build/
+tests/e2e/playwright-report/
+tests/e2e/test-results/
+tests/e2e/last-run.json
+/offsec-journal
 *.egg-info/
 .DS_Store
 Thumbs.db
