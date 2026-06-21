@@ -1247,9 +1247,18 @@ async function _fetchJournal(status) {
     .map(j => ({ ...j, _title: j.title, _ago: j.ago, _body: j.body }));
 }
 
+function _updatePendingBadge() {
+  const n = (DATA.journal || []).filter(j => j.status === 'pending').length;
+  const el = $('#journal-pending-count');
+  if (!el) return;
+  if (n > 0) { el.textContent = n; el.style.display = ''; }
+  else { el.style.display = 'none'; }
+}
+
 async function renderJournal(filter = 'pending') {
   const entries = await _fetchJournal(filter);
   const H = _escapeHtml;
+  _updatePendingBadge();
   if (entries.length === 0) {
     $('#journal-entries').innerHTML = `<div class="wf-placeholder" style="min-height:120px;">No hay entradas con status "${H(filter)}"</div>`;
     return;
@@ -1880,6 +1889,7 @@ async function refreshAll() {
       status: j.status, kind: j.kind,
       text: _jTitle(j), ago: _jAgo(j),
     }));
+    _updatePendingBadge();
 
     DATA.geo = geoRaw;
 
