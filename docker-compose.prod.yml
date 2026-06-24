@@ -1,0 +1,36 @@
+# OffSec Journal — PROD override (compose).
+#
+# Serves the app behind the lab perimeter: nginx + Authelia on the bastion does
+# forward-auth and proxies to this host on :8080, passing the authenticated user
+# in the Remote-User header. This override runs the app in PRODUCTION mode:
+#
+#   - NO DEV_USER  -> Authelia is NOT bypassed. require_authelia enforces the
+#                     trusted-proxy check and reads Remote-User (see
+#                     api/security/authelia.py).
+#   - Published on :8080 of all interfaces so the bastion's nginx upstream
+#     (proxy_pass http://10.10.0.208:8080) can reach it.
+#
+# Usage (on the host that nginx proxies to):
+#   docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
+#
+# Do NOT use plain `docker compose up` on this host: that loads only the dev
+# compose, which binds loopback-only AND bypasses Authelia.
+
+services:
+  app:
+    container_name: offsec-journal
+    ports:
+      - "8080:8000"                    # reachable from the bastion; docker opens the firewall rule
+    environment:
+      DEV_USER: ""                     # production: Authelia is the auth perimeter, no bypass
+      DEV_ALLOW_LAN: ""
+      SINGLE_TENANT_MODE: "true"       # auto-provision the Authelia Remote-User into the default team
+      SINGLE_TENANT_DEFAULT_TEAM: offsec
+      SINGLE_TENANT_DEFAULT_ROLE: admin
+      # The app sees the docker bridge gateway as request.client.host (SNAT), not
+      # the bastion's IP. TRUSTED_PROXY_IPS takes EXACT IPs (no CIDR). Add the IP
+      # reported as client_ip in the `untrusted_proxy` audit log on first request:
+      #   docker compose logs app | grep -i untrusted_proxy
+      TRUSTED_PROXY_IPS: "127.0.0.1"
+      API_HOST: 0.0.0.0
+      API_PORT: "8000"
